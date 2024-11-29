@@ -24,7 +24,6 @@ public class Mapa {
                 String[] elementos = linea.split("\t");
                 for(int j = 0; j < columnas; j++){
                     mapa[i][j] = Integer.parseInt(elementos[j]);
-                    //System.out.println(elementos[j]);
                 }
             }
         }catch(Exception e){
