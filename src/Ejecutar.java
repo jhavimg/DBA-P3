@@ -23,7 +23,7 @@ public class Ejecutar {
             Scanner sc = new Scanner(System.in);
 
             Mapa mapa = new Mapa(menu(sc));
-            //Entorno env = new Entorno(mapa);
+            Entorno env = new Entorno(mapa);
 
             
             int metaX = 0, metaY = 0, posX = 0, posY = 0;
@@ -44,15 +44,15 @@ public class Ejecutar {
             
             sc.close();
 
-            //Agente agente = new Agente(env, metaX, metaY, posX, posY);
+            Agente agente = new Agente(env, metaX, metaY, posX, posY);
             
             MapaVisual mapaVisual = new MapaVisual(mapa);
             mapaVisual.setMeta(metaX, metaY);
-            //agente.setMapaVisual(mapaVisual);
+            agente.setMapaVisual(mapaVisual);
 
             String agentName = "Agente";
-            //AgentController agent1 = cc.acceptNewAgent(agentName, agente);
-            //agent1.start();
+            AgentController agent1 = cc.acceptNewAgent(agentName, agente);
+            agent1.start();
 
         } catch (Exception e) {
             e.printStackTrace();
