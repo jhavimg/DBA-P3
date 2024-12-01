@@ -6,7 +6,7 @@ import jade.lang.acl.ACLMessage;
 public class Agente extends Agent {
 
     private int energia, posX, posY, metaX, metaY, step;
-    private boolean finalizado, esperandoRespuesta, vistoBuenoRudolph;
+    private boolean finalizado, esperandoRespuesta, vistoBuenoRudolph, renosCompletados;
     private Entorno env;
     private MapaVisual mapaVisual;
     private ACLMessage msgSanta;
@@ -21,59 +21,108 @@ public class Agente extends Agent {
         posY = pY;
         msgSanta = new ACLMessage(ACLMessage.INFORM);
         msgSanta.addReceiver(new AID ("SantaClaus", AID.ISLOCALNAME));
-        esperandoRespuesta = vistoBuenoRudolph = false;
+        esperandoRespuesta = vistoBuenoRudolph = renosCompletados = false;
     }
 
     
     protected void comunicar(){
         switch (step) { 
             case ELFO: { 
-                //Envía mensaje al traductor
-                if (!esperandoRespuesta){
-                    ACLMessage msg = new ACLMessage(ACLMessage.REQUEST);
-                    msg.addReceiver(new AID("elfo", AID.ISLOCALNAME));
-                    msg.setContent("Puedes traducirme el mensaje para Santa Claus?"); 
-                    send(msg);
-                    esperandoRespuesta = true;
-                }
-                //Recibe mensaje del traductor
-                else{
-                    ACLMessage msg = blockingReceive();
-                    if (msg.getPerformative() == ACLMessage.INFORM) {
-                        respuesta = msg.getContent();
-                        msgSanta.setContent(respuesta);
-                        send(msgSanta);
-                        step = SANTA;
-                        esperandoRespuesta = false;
+                if (!renosCompletados){
+                    //Envía mensaje al traductor
+                    if (!esperandoRespuesta){
+                        ACLMessage msg = new ACLMessage(ACLMessage.REQUEST);
+                        msg.addReceiver(new AID("Elfo", AID.ISLOCALNAME));
+                        msg.setContent("Bro, me das el código secreto, en plan"); 
+                        send(msg);
+                        esperandoRespuesta = true;
                     }
-                    else {
-                        System.out.println("Error in the coversation protocol - step " + 1);
-                        doDelete();
+                    //Recibe mensaje del traductor
+                    else{
+                        ACLMessage msg = blockingReceive();
+                        if (msg.getPerformative() == ACLMessage.INFORM) {
+                            respuesta = msg.getContent();
+                            step = SANTA;
+                            esperandoRespuesta = false;
+                        }
+                        else {
+                            System.out.println("Error in the coversation protocol - step " + 1);
+                            doDelete();
+                        }
+                    }
+                }
+                //Si ya ha completado la búsqueda de renos, se inicia la comunicación con Santa Claus
+                else{
+                     //Envía mensaje al traductor
+                     if (!esperandoRespuesta){
+                        ACLMessage msg = new ACLMessage(ACLMessage.REQUEST);
+                        msg.addReceiver(new AID("Elfo", AID.ISLOCALNAME));
+                        msg.setContent("Bro, ya he encontrado a todos los renos, me pasas tu ubicación? en plan"); 
+                        send(msg);
+                        esperandoRespuesta = true;
+                    }
+                    //Recibe mensaje del traductor
+                    else{
+                        ACLMessage msg = blockingReceive();
+                        if (msg.getPerformative() == ACLMessage.INFORM) {
+                            respuesta = msg.getContent();
+                            step = SANTA;
+                            esperandoRespuesta = false;
+                        }
+                        else {
+                            System.out.println("Error in the coversation protocol - step " + 1);
+                            doDelete();
+                        }
                     }
                 }
             }
             case SANTA: {
-                //Envía mensaje a Santa Claus
-                if (!esperandoRespuesta) {
-                    msgSanta.setContent(respuesta);
-                    send(msgSanta);
-                    esperandoRespuesta = true;
+                if (!renosCompletados){
+                    //Envía mensaje a Santa Claus
+                    if (!esperandoRespuesta) {
+                        msgSanta.setContent(respuesta);
+                        send(msgSanta);
+                        esperandoRespuesta = true;
+                    }
+                    //Recibe mensaje de Santa Claus
+                    else{
+                        msgSanta = blockingReceive();
+                        if (msgSanta.getPerformative() == ACLMessage.INFORM) {
+                            codigoSecreto = msgSanta.getContent();
+                            esperandoRespuesta = false;
+                            step = RUDOLPH;
+                        }
+                        else if (msgSanta.getPerformative() == ACLMessage.FAILURE){
+                            System.out.println("Santa Claus no ha querido confiar en ti");
+                            doDelete();
+                        }
+                        else {
+                            System.out.println("Error in the coversation protocol - step " + 2);
+                            doDelete();
+                        }
+                    }
                 }
-                //Recibe mensaje de Santa Claus
-                else{
-                    msgSanta = blockingReceive();
-                    if (msgSanta.getPerformative() == ACLMessage.INFORM) {
-                        codigoSecreto = msgSanta.getContent();
-                        esperandoRespuesta = false;
-                        step = RUDOLPH;
+                else {
+                    //Envía mensaje a Santa Claus
+                    if (!esperandoRespuesta) {
+                        msgSanta.setContent(respuesta);
+                        send(msgSanta);
+                        esperandoRespuesta = true;
                     }
-                    else if (msgSanta.getPerformative() == ACLMessage.FAILURE){
-                        System.out.println("Santa Claus no ha querido confiar en ti");
-                        doDelete();
-                    }
-                    else {
-                        System.out.println("Error in the coversation protocol - step " + 2);
-                        doDelete();
+                    //Recibe mensaje de Santa Claus
+                    else{
+                        msgSanta = blockingReceive();
+                        if (msgSanta.getPerformative() == ACLMessage.INFORM) {
+                            respuesta = msgSanta.getContent();
+                            String[] coordenadas = respuesta.split(" ");
+                            metaX = Integer.parseInt(coordenadas[0]);
+                            metaY = Integer.parseInt(coordenadas[1]);
+                            esperandoRespuesta = false;
+                        }
+                        else {
+                            System.out.println("Error in the coversation protocol - step " + 2);
+                            doDelete();
+                        }
                     }
                 }
             } 
@@ -118,6 +167,7 @@ public class Agente extends Agent {
                             if (respuesta == "No quedan renos que localizar"){
                                 System.out.println("No quedan renos que localizar");
                                 step = ELFO;
+                                renosCompletados = true;
                             }
                             else{
                                 String[] coordenadas = respuesta.split(" ");
