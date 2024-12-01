@@ -1,13 +1,17 @@
+import jade.core.AID;
 import jade.core.Agent;
 import jade.core.behaviours.SimpleBehaviour;
+import jade.lang.acl.ACLMessage;
 
 public class Agente extends Agent {
 
-    private int energia, posX, posY, metaX, metaY;
-    private boolean finalizado;
+    private int energia, posX, posY, metaX, metaY, step;
+    private boolean finalizado, esperandoRespuesta;
     private Entorno env;
     private MapaVisual mapaVisual;
-    
+    private ACLMessage msgSanta;
+    private String codigoSecreto, respuesta;
+    private final int ELFO = 0, SANTA = 1;
 
     public Agente(Entorno env, int mX, int mY, int pX, int pY) {
         this.env = env;
@@ -15,6 +19,67 @@ public class Agente extends Agent {
         metaY = mY;
         posX = pX;
         posY = pY;
+        msgSanta = new ACLMessage(ACLMessage.INFORM);
+        msgSanta.addReceiver(new AID ("SantaClaus", AID.ISLOCALNAME));
+        esperandoRespuesta = false;
+    }
+
+    
+    protected void comunicar(){
+        switch (step) { 
+            case ELFO: { 
+                //Envía mensaje al traductor
+                if (!esperandoRespuesta){
+                    ACLMessage msg = new ACLMessage(ACLMessage.REQUEST);
+                    msg.addReceiver(new AID("elfo", AID.ISLOCALNAME));
+                    msg.setContent("Puedes traducirme el mensaje para Santa Claus?"); 
+                    send(msg);
+                    esperandoRespuesta = true;
+                }
+                //Recibe mensaje del traductor
+                else{
+                    ACLMessage msg = blockingReceive();
+                    if (msg.getPerformative() == ACLMessage.INFORM) {
+                        respuesta = msg.getContent();
+                        msgSanta.setContent(respuesta);
+                        send(msgSanta);
+                        step = SANTA;
+                        esperandoRespuesta = false;
+                    }
+                    else {
+                        System.out.println("Error in the coversation protocol - step " + 1);
+                        doDelete();
+                    }
+                }
+            }
+            case SANTA: {
+                //Envía mensaje a Santa Claus
+                if (!esperandoRespuesta) {
+                    msgSanta.setContent(respuesta);
+                    send(msgSanta);
+                    esperandoRespuesta = true;
+                }
+                else{
+                    msgSanta = blockingReceive();
+                    if (msgSanta.getPerformative() == ACLMessage.INFORM) {
+                        codigoSecreto = msgSanta.getContent();
+                        esperandoRespuesta = false;
+                    }
+                    else if (msgSanta.getPerformative() == ACLMessage.FAILURE){
+                        System.out.println("Santa Claus no ha querido confiar en ti");
+                        doDelete();
+                    }
+                    else {
+                        System.out.println("Error in the coversation protocol - step " + 2);
+                        doDelete();
+                    }
+                }
+            } 
+            default:{
+                System.out.println("Error in the coversation protocol - step " + 2);
+                doDelete(); 
+            } 
+        }  
     }
 
     protected void mover() {
