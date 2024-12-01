@@ -6,12 +6,12 @@ import jade.lang.acl.ACLMessage;
 public class Agente extends Agent {
 
     private int energia, posX, posY, metaX, metaY, step;
-    private boolean finalizado, esperandoRespuesta;
+    private boolean finalizado, esperandoRespuesta, vistoBuenoRudolph;
     private Entorno env;
     private MapaVisual mapaVisual;
     private ACLMessage msgSanta;
     private String codigoSecreto, respuesta;
-    private final int ELFO = 0, SANTA = 1;
+    private final int ELFO = 0, SANTA = 1, RUDOLPH = 2;
 
     public Agente(Entorno env, int mX, int mY, int pX, int pY) {
         this.env = env;
@@ -21,7 +21,7 @@ public class Agente extends Agent {
         posY = pY;
         msgSanta = new ACLMessage(ACLMessage.INFORM);
         msgSanta.addReceiver(new AID ("SantaClaus", AID.ISLOCALNAME));
-        esperandoRespuesta = false;
+        esperandoRespuesta = vistoBuenoRudolph = false;
     }
 
     
@@ -59,11 +59,13 @@ public class Agente extends Agent {
                     send(msgSanta);
                     esperandoRespuesta = true;
                 }
+                //Recibe mensaje de Santa Claus
                 else{
                     msgSanta = blockingReceive();
                     if (msgSanta.getPerformative() == ACLMessage.INFORM) {
                         codigoSecreto = msgSanta.getContent();
                         esperandoRespuesta = false;
+                        step = RUDOLPH;
                     }
                     else if (msgSanta.getPerformative() == ACLMessage.FAILURE){
                         System.out.println("Santa Claus no ha querido confiar en ti");
@@ -75,6 +77,62 @@ public class Agente extends Agent {
                     }
                 }
             } 
+            case RUDOLPH: {
+                //Si es la primera vez que le hablamos, Rudolph tiene que darnos el visto bueno
+                if (!vistoBuenoRudolph){
+                    //Envía mensaje a Rudolph
+                    if (!esperandoRespuesta) {
+                        ACLMessage msg = new ACLMessage(ACLMessage.REQUEST);
+                        msg.addReceiver(new AID("Rudolph", AID.ISLOCALNAME));
+                        msg.setContent(codigoSecreto);
+                        send(msg);
+                        esperandoRespuesta = true;
+                    }
+                    //Recibe mensaje de Rudolph
+                    else{
+                        ACLMessage msg = blockingReceive();
+                        if (msg.getPerformative() == ACLMessage.AGREE) {
+                            esperandoRespuesta = false;
+                            vistoBuenoRudolph = true;
+                        }
+                        else {
+                            System.out.println("Error in the coversation protocol - step " + 3);
+                            doDelete();
+                        }
+                    }
+                }
+                else {
+                    //Envía mensaje a Rudolph
+                    if (!esperandoRespuesta) {
+                        ACLMessage msg = new ACLMessage(ACLMessage.INFORM);
+                        msg.addReceiver(new AID("Rudolph", AID.ISLOCALNAME));
+                        msg.setContent("Deseo saber la posición de un reno");
+                        send(msg);
+                        esperandoRespuesta = true;
+                    }
+                    //Recibe mensaje de Rudolph
+                    else{
+                        ACLMessage msg = blockingReceive();
+                        if (msg.getPerformative() == ACLMessage.INFORM) {
+                            respuesta = msg.getContent();
+                            if (respuesta == "No quedan renos que localizar"){
+                                System.out.println("No quedan renos que localizar");
+                                step = ELFO;
+                            }
+                            else{
+                                String[] coordenadas = respuesta.split(" ");
+                                metaX = Integer.parseInt(coordenadas[0]);
+                                metaY = Integer.parseInt(coordenadas[1]);
+                            }
+                            esperandoRespuesta = false;
+                        }
+                        else {
+                            System.out.println("Error in the coversation protocol - step " + 4);
+                            doDelete();
+                        }
+                    }
+                }
+            }
             default:{
                 System.out.println("Error in the coversation protocol - step " + 2);
                 doDelete(); 
