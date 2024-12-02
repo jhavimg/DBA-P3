@@ -5,8 +5,8 @@ import jade.lang.acl.ACLMessage;
 
 public class Agente extends Agent {
 
-    private int energia, posX, posY, metaX, metaY, step;
-    private boolean finalizado, esperandoRespuesta, vistoBuenoRudolph, renosCompletados;
+    private int energia, posX, posY, metaX, metaY, step, santaX, santaY;
+    private boolean finalizado, esperandoRespuesta, vistoBuenoRudolph, renosCompletados, conSanta;
     private Entorno env;
     private MapaVisual mapaVisual;
     private ACLMessage msgSanta;
@@ -21,14 +21,38 @@ public class Agente extends Agent {
         posY = pY;
         msgSanta = new ACLMessage(ACLMessage.INFORM);
         msgSanta.addReceiver(new AID ("SantaClaus", AID.ISLOCALNAME));
-        esperandoRespuesta = vistoBuenoRudolph = renosCompletados = false;
+        esperandoRespuesta = vistoBuenoRudolph = renosCompletados = conSanta = false;
     }
 
     
     protected void comunicar(){
         switch (step) { 
             case ELFO: { 
-                if (!renosCompletados){
+                //Si ya está con Santa Claus, se comunica con él para informarle
+                if (conSanta){
+                    //Envía mensaje al traductor
+                    if (!esperandoRespuesta){
+                        ACLMessage msg = new ACLMessage(ACLMessage.REQUEST);
+                        msg.addReceiver(new AID("Elfo", AID.ISLOCALNAME));
+                        msg.setContent("Bro, estoy contigo, en plan"); 
+                        send(msg);
+                        esperandoRespuesta = true;
+                    }
+                    //Recibe mensaje del traductor
+                    else{
+                        ACLMessage msg = blockingReceive();
+                        if (msg.getPerformative() == ACLMessage.INFORM) {
+                            respuesta = msg.getContent();
+                            step = SANTA;
+                            esperandoRespuesta = false;
+                        }
+                        else {
+                            System.out.println("Error in the coversation protocol - step " + 1);
+                            doDelete();
+                        }
+                    }
+                }
+                else if (!renosCompletados){
                     //Envía mensaje al traductor
                     if (!esperandoRespuesta){
                         ACLMessage msg = new ACLMessage(ACLMessage.REQUEST);
@@ -77,7 +101,29 @@ public class Agente extends Agent {
                 }
             }
             case SANTA: {
-                if (!renosCompletados){
+                //Si ya ha llegado a la meta, se comunica con Santa Claus para informarle
+                if (conSanta){
+                    //Envía mensaje a Santa Claus
+                    if (!esperandoRespuesta) {
+                        msgSanta.setContent(respuesta);
+                        send(msgSanta);
+                        esperandoRespuesta = true;
+                    }
+                    //Recibe mensaje de Santa Claus
+                    else{
+                        msgSanta = blockingReceive();
+                        if (msgSanta.getPerformative() == ACLMessage.INFORM) {
+                            respuesta = msgSanta.getContent();
+                            System.out.println(respuesta);
+                            esperandoRespuesta = false;
+                        }
+                        else {
+                            System.out.println("Error in the coversation protocol - step " + 2);
+                            doDelete();
+                        }
+                    }
+                }
+                else if (!renosCompletados){
                     //Envía mensaje a Santa Claus
                     if (!esperandoRespuesta) {
                         msgSanta.setContent(respuesta);
@@ -115,8 +161,8 @@ public class Agente extends Agent {
                         if (msgSanta.getPerformative() == ACLMessage.INFORM) {
                             respuesta = msgSanta.getContent();
                             String[] coordenadas = respuesta.split(" ");
-                            metaX = Integer.parseInt(coordenadas[0]);
-                            metaY = Integer.parseInt(coordenadas[1]);
+                            metaX = santaX = Integer.parseInt(coordenadas[0]);
+                            metaY = santaY = Integer.parseInt(coordenadas[1]);
                             esperandoRespuesta = false;
                         }
                         else {
@@ -155,7 +201,7 @@ public class Agente extends Agent {
                     if (!esperandoRespuesta) {
                         ACLMessage msg = new ACLMessage(ACLMessage.INFORM);
                         msg.addReceiver(new AID("Rudolph", AID.ISLOCALNAME));
-                        msg.setContent("Deseo saber la posición de un reno");
+                        msg.setContent("Bro, deseo saber la posición de un reno, en plan");
                         send(msg);
                         esperandoRespuesta = true;
                     }
@@ -287,6 +333,9 @@ public class Agente extends Agent {
 
                 if (posX == metaX && posY == metaY) {
                     finalizado = true;
+                    if (posX == santaX && posY == santaY){
+                        conSanta = true;
+                    }
                 }
 
                 try {
