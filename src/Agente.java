@@ -52,6 +52,29 @@ public class Agente extends Agent {
                         }
                     }
                 }
+                else if (finalizado){
+                    //Envía mensaje al traductor
+                    if (!esperandoRespuesta){
+                        ACLMessage msg = new ACLMessage(ACLMessage.REQUEST);
+                        msg.addReceiver(new AID("Elfo", AID.ISLOCALNAME));
+                        msg.setContent("Bro, acabo de encontrar a un reno, en plan"); 
+                        send(msg);
+                        esperandoRespuesta = true;
+                    }
+                    //Recibe mensaje del traductor
+                    else{
+                        ACLMessage msg = blockingReceive();
+                        if (msg.getPerformative() == ACLMessage.INFORM) {
+                            respuesta = msg.getContent();
+                            step = SANTA;
+                            esperandoRespuesta = false;
+                        }
+                        else {
+                            System.out.println("Error in the coversation protocol - step " + 1);
+                            doDelete();
+                        }
+                    }
+                }
                 else if (!renosCompletados){
                     //Envía mensaje al traductor
                     if (!esperandoRespuesta){
@@ -121,6 +144,14 @@ public class Agente extends Agent {
                             System.out.println("Error in the coversation protocol - step " + 2);
                             doDelete();
                         }
+                    }
+                }
+                // Si ha encontrado un reno se lo dice a Santa Claus
+                else if (finalizado){
+                    //Envía mensaje a Santa Claus
+                    if (!esperandoRespuesta) {
+                        msgSanta.setContent(respuesta);
+                        send(msgSanta);
                     }
                 }
                 else if (!renosCompletados){
