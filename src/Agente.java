@@ -6,7 +6,7 @@ import jade.lang.acl.ACLMessage;
 public class Agente extends Agent {
 
     private int energia, posX, posY, metaX, metaY, step, santaX, santaY;
-    private boolean finalizado, esperandoRespuesta, vistoBuenoRudolph, renosCompletados, conSanta;
+    private boolean finalizado, esperandoRespuesta, vistoBuenoRudolph, renosCompletados, conSanta, aMoverse, finalizadoFinal;
     private Entorno env;
     private MapaVisual mapaVisual;
     private ACLMessage msgSanta;
@@ -21,7 +21,10 @@ public class Agente extends Agent {
         posY = pY;
         msgSanta = new ACLMessage(ACLMessage.INFORM);
         msgSanta.addReceiver(new AID ("SantaClaus", AID.ISLOCALNAME));
-        esperandoRespuesta = vistoBuenoRudolph = renosCompletados = conSanta = false;
+        esperandoRespuesta = vistoBuenoRudolph = renosCompletados = conSanta = aMoverse = finalizadoFinal = false;
+        energia = 0;
+        finalizado = false;
+        santaX = santaY = -1;
     }
 
     
@@ -139,6 +142,7 @@ public class Agente extends Agent {
                             respuesta = msgSanta.getContent();
                             System.out.println(respuesta);
                             esperandoRespuesta = false;
+                            finalizadoFinal = true;
                         }
                         else {
                             System.out.println("Error in the coversation protocol - step " + 2);
@@ -152,6 +156,8 @@ public class Agente extends Agent {
                     if (!esperandoRespuesta) {
                         msgSanta.setContent(respuesta);
                         send(msgSanta);
+                        step = RUDOLPH;
+                        finalizado = false;
                     }
                 }
                 else if (!renosCompletados){
@@ -195,6 +201,8 @@ public class Agente extends Agent {
                             metaX = santaX = Integer.parseInt(coordenadas[0]);
                             metaY = santaY = Integer.parseInt(coordenadas[1]);
                             esperandoRespuesta = false;
+                            aMoverse = true;
+                            step = ELFO;
                         }
                         else {
                             System.out.println("Error in the coversation protocol - step " + 2);
@@ -250,6 +258,8 @@ public class Agente extends Agent {
                                 String[] coordenadas = respuesta.split(" ");
                                 metaX = Integer.parseInt(coordenadas[0]);
                                 metaY = Integer.parseInt(coordenadas[1]);
+                                aMoverse = true;
+                                step = ELFO;
                             }
                             esperandoRespuesta = false;
                         }
@@ -347,28 +357,39 @@ public class Agente extends Agent {
 
     @Override
     protected void setup() {
-        energia = 0;
-        finalizado = false;
 
         //Se mueve y comprueba si está en la meta
         addBehaviour(new SimpleBehaviour() {
             @Override
             public void action() {
+                
+                // mover();
+                // mapaVisual.actualizarPosicionAgente(posX, posY);
+                // energia++;
+                // System.out.println("Nueva posicion: " + posX + " " + posY);
+
+                // if (posX == metaX && posY == metaY) {
+                //     finalizado = true;
+                //     if (posX == santaX && posY == santaY){
+                //         conSanta = true;
+                //     }
+                // }
                 if(energia == 0){
                     mapaVisual.actualizarPosicionAgente(posX, posY);
                 }
-                mover();
-                mapaVisual.actualizarPosicionAgente(posX, posY);
-                energia++;
-                System.out.println("Nueva posicion: " + posX + " " + posY);
 
-                if (posX == metaX && posY == metaY) {
+                if (aMoverse) mover();
+                else comunicar();
+
+                if (posX == metaX && posY == metaY && aMoverse) {
                     finalizado = true;
+                    aMoverse = false;
                     if (posX == santaX && posY == santaY){
                         conSanta = true;
                     }
                 }
-
+                mapaVisual.actualizarPosicionAgente(posX, posY);
+                energia++;
                 try {
                     Thread.sleep(500); // Pausa de 500ms para visualizar el movimiento
                 } catch (InterruptedException e) {
@@ -378,7 +399,7 @@ public class Agente extends Agent {
 
             @Override
             public boolean done() {
-                return finalizado;
+                return finalizadoFinal;
             }
         });
 
@@ -386,14 +407,14 @@ public class Agente extends Agent {
         addBehaviour(new SimpleBehaviour() {
             @Override
             public void action() {
-                if (finalizado) {
+                if (finalizadoFinal) {
                     System.out.println("Energía consumida: " + energia);
                 }
             }
 
             @Override
             public boolean done() {
-                return finalizado;
+                return finalizadoFinal;
             }
         });
     }
