@@ -1,3 +1,5 @@
+package dbap3;
+
 import jade.core.Profile;
 import jade.core.ProfileImpl;
 import jade.core.Runtime; 
@@ -52,6 +54,21 @@ public class Ejecutar {
 
             String agentName = "Agente";
             AgentController agent1 = cc.acceptNewAgent(agentName, agente);
+            agent1.start();
+            
+            Santa santa = new Santa(15, 15);
+            String agentName2 = "Santa";
+            AgentController agent2 = cc.acceptNewAgent(agentName2, santa);
+            agent1.start();
+            
+            Elfo elfo = new Elfo();
+            String agentName3 = "Elfo";
+            AgentController agent3 = cc.acceptNewAgent(agentName3, elfo);
+            agent1.start();
+            
+            Rudolph rudolph = new Rudolph();
+            String agentName4 = "Rudolph";
+            AgentController agent4 = cc.acceptNewAgent(agentName4, rudolph);
             agent1.start();
 
         } catch (Exception e) {
