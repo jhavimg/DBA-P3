@@ -41,7 +41,7 @@ public class Elfo extends Agent{
                     step++;
                 }
                 else {
-                    System.out.println("Error in the coversation protocol - step " + 1);
+                    System.out.println("Elfo: Error in the coversation protocol - step " + 1);
                     doDelete();
                 }
                 
@@ -61,7 +61,7 @@ public class Elfo extends Agent{
                     step--;
                 }
                 else {
-                    System.out.println("Error in the coversation protocol - step " + 1);
+                    System.out.println("Elfo: Error in the coversation protocol - step " + 1);
                     doDelete();
                 }
 
@@ -69,7 +69,7 @@ public class Elfo extends Agent{
 
             default: {
 
-                System.out.println("Error in the coversation protocol - step " + 2);
+                System.out.println("Elfo: Error in the coversation protocol - step " + 2);
                 doDelete(); 
 
             }

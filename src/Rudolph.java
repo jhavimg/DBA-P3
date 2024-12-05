@@ -66,7 +66,7 @@ public class Rudolph extends Agent {
                         }
                     } else {
                         respuesta.setPerformative(ACLMessage.INFORM);
-                        respuesta.setContent("No quedan renos que localizar");
+                        respuesta.setContent("Rudolph: Error in the coversation protocol - step" + 1);
                     }
                     send(respuesta);
                 }

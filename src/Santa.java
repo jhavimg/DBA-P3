@@ -48,7 +48,7 @@ public class Santa extends Agent{
                             step = ELFO;
                         }
                         else {
-                            System.out.println("Error in the coversation protocol - step " + 0);
+                            System.out.println("Santa: Error in the coversation protocol - step " + 0);
                             doDelete();
                         }
                     }
@@ -82,7 +82,7 @@ public class Santa extends Agent{
                             step = ELFO;
                         }
                         else {
-                            System.out.println("Error in the coversation protocol - step " + 0);
+                            System.out.println("Santa: Error in the coversation protocol - step " + 0);
                             doDelete();
                         }
                     }
@@ -116,7 +116,7 @@ public class Santa extends Agent{
                             step = AGENTE;
                         }
                         else {
-                            System.out.println("Error in the coversation protocol - step " + 1);
+                            System.out.println("Santa: Error in the coversation protocol - step " + 1);
                             doDelete();
                         }
                     }
@@ -142,7 +142,7 @@ public class Santa extends Agent{
                             respuestaRecibida = true;
                         }
                         else {
-                            System.out.println("Error in the coversation protocol - step " + 1);
+                            System.out.println("Santa: Error in the coversation protocol - step " + 1);
                             doDelete();
                         }
                     }
@@ -206,7 +206,7 @@ public class Santa extends Agent{
                 }
             }*/
             default:{
-                System.out.println("Error in the coversation protocol - step " + 2);
+                System.out.println("Santa: Error in the coversation protocol - step " + 2);
                 doDelete(); 
             } 
         }  
