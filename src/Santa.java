@@ -25,6 +25,7 @@ public class Santa extends Agent{
         step = 0;
     }
     
+    //Función para enviar un mensaje al Elfo para que lo traduzca
     private String traducir(String mensaje){
         String final_msg = "";
         

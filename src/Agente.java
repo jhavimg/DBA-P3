@@ -11,7 +11,7 @@ public class Agente extends Agent {
     private MapaVisual mapaVisual;
     private ACLMessage msgSanta;
     private String codigoSecreto, respuesta;
-    private String comienzo = "Bro " , fin = " en plan";
+    private String comienzo = "Bro," , fin = ",en plan";
 
 
     public Agente(Entorno env, int mX, int mY, int pX, int pY , MapaVisual mapavisual) {
@@ -30,11 +30,33 @@ public class Agente extends Agent {
         step = 0;
     }
 
-    
+    private String traducir(String mensaje){
+        String final_msg = "";
+        
+        ACLMessage msg = new ACLMessage(ACLMessage.REQUEST);
+        msg.addReceiver(new AID("Elfo", AID.ISLOCALNAME));
+        msg.setContent(mensaje); 
+        send(msg);
+        
+        msg = blockingReceive();
+        if (msg.getPerformative() == ACLMessage.INFORM) {
+            final_msg = msg.getContent();
+            System.out.print("Agente: " + final_msg + "\n");
+        }else{
+            System.out.print("Agente: El protocolo entre el Elfo y yo no es correcto\n ");
+            doDelete();
+        }
+        
+        return final_msg;
+    }
+
     protected void comunicar(){
         switch (step) { 
             case 0: { 
                 String mensaje = comienzo + "me das el codigo" + fin;
+
+                mensaje = traducir(mensaje);
+
                 ACLMessage msg = new ACLMessage(ACLMessage.REQUEST);
                 msg.addReceiver(new AID("SantaClaus", AID.ISLOCALNAME));
                 msg.setContent(mensaje); 
@@ -43,17 +65,17 @@ public class Agente extends Agent {
                 msg = blockingReceive();
                 if (msg.getPerformative() == ACLMessage.AGREE) {
                     respuesta = msg.getContent();
-                    System.out.print("Agente1: Me ha dado el codigo secreto\n");
-                    finalizadoFinal = true;
+                    System.out.print("Agente: Me ha dado el codigo secreto\n");
+                    
                     String[] partes = respuesta.split(",");
                     if (partes.length > 1) {
-                        this.codigoSecreto = partes[1]; // Esto obtiene "mensaje que quiero"
-                        System.out.println(mensaje);
+                        this.codigoSecreto = partes[1]; 
                     } else {
                         System.out.println("No se encontró un mensaje entre comillas.");
                     }
                     
                     System.out.print("Agente: El codigo secreto es: " + this.codigoSecreto + "\n");
+                    finalizadoFinal = true;
                 }else{
                     System.out.print("Agente: No ha confiado en mi\n ");
                 }

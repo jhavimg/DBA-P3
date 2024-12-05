@@ -18,8 +18,8 @@ public class Elfo extends Agent{
     protected String traducirMensaje(String mensaje, String agente){
         String aux = "", final_msg = "";
         if(agente.equals("Agente")){
-             aux = mensaje.replace("Bro", "Rakas Joulupukki");
-             final_msg = aux.replace("en plan", "Kiitos");
+            aux = mensaje.replace("Bro", "Rakas Joulupukki");
+            final_msg = aux.replace("en plan", "Kiitos");
         }
         else if(agente.equals("SantaClaus")){
              aux = mensaje.replace("Hyvää joulua", "Bro");
@@ -41,7 +41,7 @@ public class Elfo extends Agent{
                     reply.setContent(mensaje_enviar);
                     send(reply);
                     
-                    finalizadoFinal = true;
+                    
                 }
                 else {
                     System.out.println("Error in the coversation protocol - step " + 1);

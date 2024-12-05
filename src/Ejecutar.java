@@ -75,11 +75,6 @@ public class Ejecutar {
         mapaVisual.setMeta(metaX, metaY);
         
         try {
-            //AgentController ac = cc.createNewAgent(agentName, Agente.class.getCanonicalName(), new Object[]{ env,  metaX , metaY , posX , posY ,  mapaVisual});
-            //AgentController santa = cc.createNewAgent("SantaClaus", Santa.class.getCanonicalName(), new Object[]{ posX ,  posY});
-
-            //ac.start();
-            //santa.start();
             Agente agente = new Agente(env, metaX, metaY, posX, posY, mapaVisual);
             AgentController agent1 = cc.acceptNewAgent(agentName, agente);
             agent1.start();
