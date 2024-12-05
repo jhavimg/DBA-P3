@@ -50,7 +50,7 @@ public class Agente extends Agent {
                             esperandoRespuesta = false;
                         }
                         else {
-                            System.out.println("Error in the coversation protocol - step " + 1);
+                            System.out.println("Error in the conversation protocol - step " + 1);
                             doDelete();
                         }
                     }
@@ -73,7 +73,7 @@ public class Agente extends Agent {
                             esperandoRespuesta = false;
                         }
                         else {
-                            System.out.println("Error in the coversation protocol - step " + 1);
+                            System.out.println("Error in the conversation protocol - step " + 1);
                             doDelete();
                         }
                     }
@@ -96,7 +96,7 @@ public class Agente extends Agent {
                             esperandoRespuesta = false;
                         }
                         else {
-                            System.out.println("Error in the coversation protocol - step " + 1);
+                            System.out.println("Error in the conversation protocol - step " + 1);
                             doDelete();
                         }
                     }
@@ -120,7 +120,7 @@ public class Agente extends Agent {
                             esperandoRespuesta = false;
                         }
                         else {
-                            System.out.println("Error in the coversation protocol - step " + 1);
+                            System.out.println("Error in the conversation protocol - step " + 1);
                             doDelete();
                         }
                     }
@@ -145,7 +145,7 @@ public class Agente extends Agent {
                             finalizadoFinal = true;
                         }
                         else {
-                            System.out.println("Error in the coversation protocol - step " + 2);
+                            System.out.println("Error in the conversation protocol - step " + 2);
                             doDelete();
                         }
                     }
@@ -180,7 +180,7 @@ public class Agente extends Agent {
                             doDelete();
                         }
                         else {
-                            System.out.println("Error in the coversation protocol - step " + 2);
+                            System.out.println("Error in the conversation protocol - step " + 2);
                             doDelete();
                         }
                     }
@@ -205,7 +205,7 @@ public class Agente extends Agent {
                             step = ELFO;
                         }
                         else {
-                            System.out.println("Error in the coversation protocol - step " + 2);
+                            System.out.println("Error in the conversation protocol - step " + 2);
                             doDelete();
                         }
                     }
@@ -230,7 +230,7 @@ public class Agente extends Agent {
                             vistoBuenoRudolph = true;
                         }
                         else {
-                            System.out.println("Error in the coversation protocol - step " + 3);
+                            System.out.println("Error in the conversation protocol - step " + 3);
                             doDelete();
                         }
                     }
@@ -264,14 +264,14 @@ public class Agente extends Agent {
                             esperandoRespuesta = false;
                         }
                         else {
-                            System.out.println("Error in the coversation protocol - step " + 4);
+                            System.out.println("Error in the conversation protocol - step " + 4);
                             doDelete();
                         }
                     }
                 }
             }
             default:{
-                System.out.println("Error in the coversation protocol - step " + 2);
+                System.out.println("Error in the conversation protocol - step " + 2);
                 doDelete(); 
             } 
         }  
