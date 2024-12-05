@@ -1,4 +1,5 @@
 import jade.core.Agent;
+import jade.core.behaviours.SimpleBehaviour;
 import jade.lang.acl.ACLMessage;
 
 
@@ -7,10 +8,12 @@ public class Elfo extends Agent{
     private String mensaje_recibido, mensaje_enviar;
     private int step;
     private final int AGENTE = 0, SANTA = 1;
+    private boolean finalizadoFinal;
 
     public Elfo(){
         mensaje_recibido = "";
         mensaje_enviar = "";
+        finalizadoFinal = false;
     }
 
     protected String traducirMensaje(String mensaje, boolean agente){
@@ -58,6 +61,12 @@ public class Elfo extends Agent{
                     ACLMessage reply = msg.createReply(ACLMessage.INFORM);
                     msg.setContent(mensaje_enviar);
                     send(reply);
+
+                    if(mensaje_recibido == "Hyvää joulua, HoHoHo! , Nähdään pian"){
+                        finalizadoFinal = true;
+                        doDelete();
+                    }
+                    
                     step--;
                 }
                 else {
@@ -74,5 +83,24 @@ public class Elfo extends Agent{
 
             }
         } 
-    }   
+    } 
+
+    @Override
+    protected void setup() {
+
+        //Se mueve y comprueba si está en la meta
+        addBehaviour(new SimpleBehaviour() {
+            @Override
+            public void action() {
+                comunicar();
+            }
+
+            @Override
+            public boolean done() {
+                return finalizadoFinal;
+            }
+        });
+    }
+    
+    
 }
