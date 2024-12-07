@@ -94,6 +94,6 @@ public class Elfo extends Agent{
 
     @Override
     public void takeDown() {
-        System.out.println("Terminating agent...");
+        System.out.println("Cerrando elfo...");
     }
 }

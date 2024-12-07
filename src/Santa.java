@@ -20,7 +20,6 @@ public class Santa extends Agent{
         posX = pX;
         posY = pY;
         msgAgente = new ACLMessage(ACLMessage.INFORM);
-        msgAgente.addReceiver(new AID ("Agente", AID.ISLOCALNAME));
         respuestaRecibida = esperandoRespuesta = false;
         step = 0;
     }
@@ -52,25 +51,24 @@ public class Santa extends Agent{
                 ACLMessage msg = blockingReceive();
                 if (msg.getPerformative() == ACLMessage.REQUEST) {
                     boolean esConfiable = new Random().nextDouble() < PROBABILIDAD_CONFIABLE;
-                    ACLMessage replay;
+                    ACLMessage reply;
                     if (esConfiable) {
                         mensaje = comienzoE + CODIGO_SECRETO + finE;
                         System.out.print("Santa Claus: Si confio en el agente\n");
                         
-                        replay = msg.createReply(ACLMessage.AGREE);
+                        reply = msg.createReply(ACLMessage.AGREE);
                         
                     } else {
                         mensaje = comienzoE + "Lo siento, no eres digno" + finE;
                         System.out.print("Santa Claus: No confio en el agente\n");
-                        replay = msg.createReply(ACLMessage.FAILURE);
+                        reply = msg.createReply(ACLMessage.FAILURE);
                     }
                     
                     respuesta = this.traducir(mensaje);
-                    replay.setContent(respuesta);
-                    send(replay);
+                    reply.setContent(respuesta);
+                    send(reply);
                         
                    
-                    this.finalizadoFinal = true;
                 }else{
                     System.out.print("Pregunta invalida");
                 }
@@ -85,6 +83,7 @@ public class Santa extends Agent{
     
     @Override
     protected void setup() {
+        msgAgente.addReceiver(new AID ("Agente", AID.ISLOCALNAME));
 
         //Se mueve y comprueba si está en la meta
         addBehaviour(new SimpleBehaviour() {
@@ -117,6 +116,6 @@ public class Santa extends Agent{
 
     @Override
     public void takeDown() {
-        System.out.println("Terminating agent...");
+        System.out.println("Cerrando Santa...");
     }
 }

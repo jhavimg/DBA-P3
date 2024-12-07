@@ -42,9 +42,35 @@ public class Rudolph extends Agent {
     private void manejarMensaje(ACLMessage mensaje) {
         String contenido = mensaje.getContent();
         ACLMessage respuesta = mensaje.createReply();
-
+        System.out.println("Rudolph: Mensaje recibido: " + contenido);
         switch (mensaje.getPerformative()) {
             case ACLMessage.REQUEST: // Validar el código secreto
+                if (mensaje.getConversationId().equals("1234")) {
+                    System.out.println("Rudolph: Código aceptado");
+                    if (!todosRenosEncontrados) {
+                        if (indiceActual < coordenadasRenos.size()) {
+                            respuesta.setPerformative(ACLMessage.ACCEPT_PROPOSAL);
+                            respuesta.setContent(coordenadasRenos.get(indiceActual));
+                            System.out.println("Rudolph: Enviando coordenadas del reno " + (indiceActual + 1) + ": " + coordenadasRenos.get(indiceActual));
+                            indiceActual++;
+                            if (indiceActual == coordenadasRenos.size()) {
+                                todosRenosEncontrados = true;
+                            }
+                        }
+                    }
+                    else {
+                        respuesta.setPerformative(ACLMessage.INFORM);
+                        respuesta.setContent("No quedan renos que localizar");
+                        System.out.println("Rudolph: No quedan renos que localizar");
+                    }
+                    send(respuesta);
+                } else {
+                    System.out.println("Rudolph: Código incorrecto");
+                    respuesta.setPerformative(ACLMessage.REFUSE);
+                    respuesta.setContent("Código incorrecto");
+                }
+                send(respuesta);
+            /*case ACLMessage.REQUEST: // Validar el código secreto
                 if (contenido.equals(CODIGO_SECRETO)) {
                     respuesta.setPerformative(ACLMessage.AGREE);
                     respuesta.setContent("Código aceptado");
@@ -75,11 +101,12 @@ public class Rudolph extends Agent {
             default:
                 System.out.println("Mensaje no reconocido");
                 break;
+                */
         }
     }
 
     @Override
     protected void takeDown() {
-        System.out.println("Rudolph finalizando...");
+        System.out.println("Cerrando Rudolph...");
     }
 }
