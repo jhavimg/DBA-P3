@@ -20,8 +20,6 @@ public class Agente extends Agent {
         metaY = mY;
         posX = pX;
         posY = pY;
-        msgSanta = new ACLMessage(ACLMessage.INFORM);
-        msgSanta.addReceiver(new AID ("SantaClaus", AID.ISLOCALNAME));
         esperandoRespuesta = vistoBuenoRudolph = renosCompletados = conSanta = aMoverse = finalizadoFinal = false;
         energia = 0;
         finalizado = false;
@@ -135,20 +133,20 @@ public class Agente extends Agent {
 
                 mensaje = traducir(mensaje);
 
-                ACLMessage msg = new ACLMessage(ACLMessage.REQUEST);
-                msg.addReceiver(new AID("SantaClaus", AID.ISLOCALNAME));
-                msg.setContent(mensaje); 
-                send(msg);
+                msgSanta = new ACLMessage(ACLMessage.REQUEST);
+                msgSanta.addReceiver(new AID("SantaClaus", AID.ISLOCALNAME));
+                msgSanta.setContent(mensaje); 
+                send(msgSanta);
                 
-                msg = blockingReceive();
-                if (msg.getPerformative() == ACLMessage.AGREE) {
-                    respuesta = msg.getContent();
-                    respuesta = respuesta.split(",")[1];
-                    System.out.print("Agente: Me ha dado el codigo secreto\n");
-                    System.out.print("Agente: El codigo secreto es: " + respuesta + "\n");
+                msgSanta = blockingReceive();
+                if (msgSanta.getPerformative() == ACLMessage.AGREE) {
+                    codigoSecreto = msgSanta.getContent();
+                    codigoSecreto = codigoSecreto.split(",")[1];
+                    System.out.println("Agente: Me ha dado el codigo secreto");
+                    System.out.println("Agente: El codigo secreto es: " + codigoSecreto);
                     step++;
                 }else{
-                    System.out.print("Agente: No ha confiado en mi\n ");
+                    System.out.println("Agente: No ha confiado en mi");
                 }
             }
             case 1: {
@@ -156,13 +154,13 @@ public class Agente extends Agent {
                 msg.addReceiver(new AID("Rudolph", AID.ISLOCALNAME));
                 String mensaje = comienzo + "dame la posición de un reno" + fin;
                 msg.setContent(mensaje);
-                msg.setConversationId(respuesta);
+                msg.setConversationId(codigoSecreto);
                 send(msg);
 
                 msg = blockingReceive();
                 if (msg.getPerformative() == ACLMessage.ACCEPT_PROPOSAL) {
                     String coordenadas = msg.getContent();
-                    System.out.print("Agente: " + coordenadas + "\n");
+                    System.out.println("Agente: " + coordenadas);
                     String[] partes = coordenadas.split(" ");
                     if (partes.length > 1) {
                         metaX = Integer.parseInt(partes[0]);
@@ -172,11 +170,18 @@ public class Agente extends Agent {
                         System.out.println("No se encontró un mensaje entre comillas.");
                     }
                 }
-                else{
-                    System.out.print("Agente: No quedan renos\n ");
+                else if (msg.getPerformative() == ACLMessage.INFORM) {
+                    System.out.println("Agente: No quedan renos");
                     step++;
                     finalizadoFinal = true;
-
+                }
+                else if (msg.getPerformative() == ACLMessage.REFUSE) {
+                    System.out.println("Agente: Codigo incorrecto");
+                    finalizadoFinal = true;
+                }
+                else{
+                    System.out.println("Agente: No se ha podido localizar al reno");
+                    finalizadoFinal = true;
                 }
             
             /*default:{

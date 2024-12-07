@@ -63,7 +63,6 @@ public class Rudolph extends Agent {
                         respuesta.setContent("No quedan renos que localizar");
                         System.out.println("Rudolph: No quedan renos que localizar");
                     }
-                    send(respuesta);
                 } else {
                     System.out.println("Rudolph: Código incorrecto");
                     respuesta.setPerformative(ACLMessage.REFUSE);
