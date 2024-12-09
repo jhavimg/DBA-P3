@@ -47,12 +47,12 @@ public class MapaVisual extends JFrame {
     public void actualizarPosicionAgente(int x, int y) {
         if (lastX != -1 && lastY != -1 && !(lastX == metaX && lastY == metaY)) {
             // Marca la celda por la que ha pasdo el agente
-            celdas[lastX][lastY].setIcon(new ImageIcon("Pr2-maps/tierra.png")); 
+            celdas[lastX][lastY].setIcon(new ImageIcon("mapas-pr3/tierra.png")); 
         }
 
         // Actualiza a la nueva posición del agente con una imagen específica
         celdas[x][y].setIcon(new ImageIcon("")); 
-        celdas[x][y].setBackground(new Color(255,0,0));
+        celdas[x][y].setBackground(new Color(0,0,255));
 
         // Actualiza la posición previa
         lastX = x;
@@ -66,6 +66,16 @@ public class MapaVisual extends JFrame {
         this.metaY = y;
         celdas[x][y].setIcon(null);  // Meta con imagen específica
         celdas[x][y].setBackground(new Color(255, 187, 51));
+        repaint();
+    }
+
+    public void setReno(int x , int y){
+        celdas[x][y].setBackground(new Color(116,78,59));
+        repaint();
+    }
+
+    public void setSanta(int x , int y){
+        celdas[x][y].setBackground(new Color(255,0,0));
         repaint();
     }
 }
