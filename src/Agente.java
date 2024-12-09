@@ -147,7 +147,9 @@ public class Agente extends Agent {
                     step++;
                 }else{
                     System.out.println("Agente: No ha confiado en mi");
+                    finalizadoFinal = true;
                 }
+                break;
             }
             case 1: {
                 ACLMessage msg = new ACLMessage(ACLMessage.REQUEST);
@@ -172,8 +174,7 @@ public class Agente extends Agent {
                 }
                 else if (msg.getPerformative() == ACLMessage.INFORM) {
                     System.out.println("Agente: No quedan renos");
-                    step++;
-                    finalizadoFinal = true;
+                    step = 3;
                 }
                 else if (msg.getPerformative() == ACLMessage.REFUSE) {
                     System.out.println("Agente: Codigo incorrecto");
@@ -183,12 +184,72 @@ public class Agente extends Agent {
                     System.out.println("Agente: No se ha podido localizar al reno");
                     finalizadoFinal = true;
                 }
-            
-            /*default:{
-                System.out.println("Error in the coversation protocol - step " + 0);
-                doDelete(); 
-            } */
-            }  
+                break;
+            }
+            case 2:{
+                String mensaje = comienzo + "he encontrado un reno" + fin;
+                mensaje = traducir(mensaje);
+                msgSanta.clearAllReceiver();
+                msgSanta.addReceiver(new AID("SantaClaus", AID.ISLOCALNAME));
+                msgSanta.setPerformative(ACLMessage.INFORM);
+                msgSanta.setContent(mensaje);
+                send(msgSanta);
+                step--;
+                break;
+            } 
+            case 3:{
+                String mensaje = comienzo + "dónde estás, Santa?" + fin;
+                mensaje = traducir(mensaje);
+                /*msgSanta.clearAllReceiver();
+                msgSanta.addReceiver(new AID("SantaClaus", AID.ISLOCALNAME));
+                msgSanta.setPerformative(ACLMessage.REQUEST);
+                msgSanta.setContent(mensaje);
+                send(msgSanta);*/
+                ACLMessage msg = new ACLMessage(ACLMessage.REQUEST);
+                msg.addReceiver(new AID("SantaClaus", AID.ISLOCALNAME));
+                msg.setContent(mensaje);
+                send(msg);
+
+                System.out.println("Agente: Esperando respuesta de Santa");
+                msg = blockingReceive();
+                if (msg.getPerformative() == ACLMessage.INFORM) {
+                    String coordenadas = msg.getContent();
+                    System.out.println("Agente: " + coordenadas);
+                    coordenadas = coordenadas.split(",")[1];
+                    String[] partes = coordenadas.split(" ");
+                    if (partes.length > 1) {
+                        santaX = metaX = Integer.parseInt(partes[0]);
+                        santaY = metaY = Integer.parseInt(partes[1]);
+                        aMoverse = true;
+                    } else {
+                        System.out.println("No se encontró un mensaje entre comillas.");
+                        finalizadoFinal = true;
+                    }
+                }
+                else{
+                    System.out.println("Agente: No se ha podido localizar a Santa");
+                    finalizadoFinal = true;
+                }
+                break;
+            } 
+            case 4:{
+                String mensaje = comienzo + "te he encontrado" + fin;
+                mensaje = traducir(mensaje);
+                ACLMessage msg = new ACLMessage(ACLMessage.INFORM);
+                msg.addReceiver(new AID("SantaClaus", AID.ISLOCALNAME));
+                msg.setContent(mensaje);
+                send(msg);
+                finalizadoFinal = true;
+                
+                msg = blockingReceive();
+                if (msg.getPerformative() == ACLMessage.INFORM) {
+                    System.out.println("Agente: " + msg.getContent());
+                }
+                else{
+                    System.out.println("Agente: No se ha podido localizar a Santa");
+                }
+                break;
+            }
         }
     }
 
@@ -215,8 +276,9 @@ public class Agente extends Agent {
                     finalizado = true;
                     aMoverse = false;
                     if (posX == santaX && posY == santaY){
-                        conSanta = true;
+                        step++;
                     }
+                    else step = 2;
                 }
                 try {
                     Thread.sleep(5); // Pausa de 500ms para visualizar el movimiento

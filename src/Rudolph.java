@@ -69,6 +69,7 @@ public class Rudolph extends Agent {
                     respuesta.setContent("Código incorrecto");
                 }
                 send(respuesta);
+                break;
             /*case ACLMessage.REQUEST: // Validar el código secreto
                 if (contenido.equals(CODIGO_SECRETO)) {
                     respuesta.setPerformative(ACLMessage.AGREE);

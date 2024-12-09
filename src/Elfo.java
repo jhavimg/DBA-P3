@@ -29,35 +29,20 @@ public class Elfo extends Agent{
     }
 
     protected void comunicar(){
-        switch (step) { 
-            case 0: {
-                ACLMessage msg = blockingReceive();
+        ACLMessage msg = blockingReceive();
 
-                if (msg.getPerformative() == ACLMessage.REQUEST) {
-                    mensaje_recibido = msg.getContent();
-                    mensaje_enviar = traducirMensaje(mensaje_recibido, msg.getSender().getLocalName());
-                    System.out.print("Elfo: " + mensaje_enviar + "\n");
-                    ACLMessage reply = msg.createReply(ACLMessage.INFORM);
-                    reply.setContent(mensaje_enviar);
-                    send(reply);
-                    
-                    
-                }
-                else {
-                    System.out.println("Error in the coversation protocol - step " + 1);
-                    doDelete();
-                }
-                
-            }
-            
-            
-            /*default: {
-
-                System.out.println("Error in the coversation protocol - step " + 2);
-                doDelete(); 
-
-            }*/
-        } 
+        if (msg.getPerformative() == ACLMessage.REQUEST) {
+            mensaje_recibido = msg.getContent();
+            mensaje_enviar = traducirMensaje(mensaje_recibido, msg.getSender().getLocalName());
+            System.out.println("Elfo: " + mensaje_enviar);
+            ACLMessage reply = msg.createReply(ACLMessage.INFORM);
+            reply.setContent(mensaje_enviar);
+            send(reply);
+        }
+        else {
+            System.out.println("Error in the coversation protocol - step " + 1);
+            doDelete();
+        }
     } 
     
     @Override
@@ -75,21 +60,6 @@ public class Elfo extends Agent{
                 return finalizadoFinal;
             }
         });
-
-        //Imprime la energía consumida al final
-        /*addBehaviour(new SimpleBehaviour() {
-            @Override
-            public void action() {
-                if (finalizadoFinal) {
-                    System.out.println("Energía consumida: " + energia);
-                }
-            }
-
-            @Override
-            public boolean done() {
-                return finalizadoFinal;
-            }
-        });*/
     }
 
     @Override
