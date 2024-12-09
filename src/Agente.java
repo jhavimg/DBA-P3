@@ -167,6 +167,7 @@ public class Agente extends Agent {
                     if (partes.length > 1) {
                         metaX = Integer.parseInt(partes[0]);
                         metaY = Integer.parseInt(partes[1]);
+                        mapaVisual.setReno(metaX, metaY);
                         aMoverse = true;
                     } else {
                         System.out.println("No se encontró un mensaje entre comillas.");
@@ -220,6 +221,7 @@ public class Agente extends Agent {
                     if (partes.length > 1) {
                         santaX = metaX = Integer.parseInt(partes[0]);
                         santaY = metaY = Integer.parseInt(partes[1]);
+                        mapaVisual.setSanta(santaX, santaY);
                         aMoverse = true;
                     } else {
                         System.out.println("No se encontró un mensaje entre comillas.");
