@@ -7,11 +7,10 @@ import jade.lang.acl.ACLMessage;
 
 public class Santa extends Agent{
     private static final double PROBABILIDAD_CONFIABLE = 0.8;
-    private boolean esperandoRespuesta , renosCompletados , respuestaRecibida;
+    private boolean renosCompletados ;
     private int posX, posY, step, contadorRenos;
     private String respuesta , mensaje;
     private ACLMessage msgAgente;
-    private final int AGENTE = 0, ELFO = 1;
     private final String CODIGO_SECRETO = "1234";
     boolean finalizadoFinal = false;
     private String comienzoR = "Rakas Joulupukki " , finR = " Kiitos" , comienzoE = "Hyvää joulua,"  , finE = ",Nähdään pian";
@@ -20,7 +19,6 @@ public class Santa extends Agent{
         posX = pX;
         posY = pY;
         msgAgente = new ACLMessage(ACLMessage.INFORM);
-        respuestaRecibida = esperandoRespuesta = false;
         step = contadorRenos = 0;
     }
     

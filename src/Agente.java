@@ -130,23 +130,52 @@ public class Agente extends Agent {
         switch (step) { 
             case 0: { 
                 String mensaje = comienzo + "me das el codigo" + fin;
+                mapaVisual.setMensaje(mensaje , 2, true);
+                /* try {
+                    Thread.sleep(2000);
+                } catch (InterruptedException e) {
+                    // TODO Auto-generated catch block
+                    e.printStackTrace();
+                } */
 
                 mensaje = traducir(mensaje);
+                mapaVisual.setMensaje(mensaje , 2, false);
+                /* try {
+                    Thread.sleep(2000);
+                } catch (InterruptedException e) {
+                    // TODO Auto-generated catch block
+                    e.printStackTrace();
+                } */
 
                 msgSanta = new ACLMessage(ACLMessage.REQUEST);
                 msgSanta.addReceiver(new AID("SantaClaus", AID.ISLOCALNAME));
                 msgSanta.setContent(mensaje); 
                 send(msgSanta);
+                mapaVisual.setMensaje(mensaje , 1, true);
+                /* try {
+                    Thread.sleep(2000);
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                } */
                 
                 msgSanta = blockingReceive();
                 if (msgSanta.getPerformative() == ACLMessage.AGREE) {
                     codigoSecreto = msgSanta.getContent();
+                    mapaVisual.setMensaje(codigoSecreto , 1, false);
+                    /* try {
+                        Thread.sleep(2000);
+                    } catch (InterruptedException e) {
+                        e.printStackTrace();
+                    } */
                     codigoSecreto = codigoSecreto.split(",")[1];
                     System.out.println("Agente: Me ha dado el codigo secreto");
                     System.out.println("Agente: El codigo secreto es: " + codigoSecreto);
+                    mapaVisual.setMensaje("Me ha dado el codigo secreto" , 1 , true );
                     step++;
                 }else{
                     System.out.println("Agente: No ha confiado en mi");
+                    mensaje = msgSanta.getContent();
+                    mapaVisual.setMensaje(codigoSecreto , 1, false);
                     finalizadoFinal = true;
                 }
                 break;
@@ -158,11 +187,24 @@ public class Agente extends Agent {
                 msg.setContent(mensaje);
                 msg.setConversationId(codigoSecreto);
                 send(msg);
+                mapaVisual.setMensaje(mensaje , 3, true);
+                /* try {
+                    Thread.sleep(1000);
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                } */
 
                 msg = blockingReceive();
+                String coordenadas = msg.getContent();
                 if (msg.getPerformative() == ACLMessage.ACCEPT_PROPOSAL) {
-                    String coordenadas = msg.getContent();
+                    //String coordenadas = msg.getContent();
                     System.out.println("Agente: " + coordenadas);
+                    mapaVisual.setMensaje(coordenadas , 3, false);
+                    /* try {
+                        Thread.sleep(2000);
+                    } catch (InterruptedException e) {
+                        e.printStackTrace();
+                    } */
                     String[] partes = coordenadas.split(" ");
                     if (partes.length > 1) {
                         metaX = Integer.parseInt(partes[0]);
@@ -175,6 +217,7 @@ public class Agente extends Agent {
                 }
                 else if (msg.getPerformative() == ACLMessage.INFORM) {
                     System.out.println("Agente: No quedan renos");
+                    mapaVisual.setMensaje(coordenadas, 3, false);
                     step = 3;
                 }
                 else if (msg.getPerformative() == ACLMessage.REFUSE) {
@@ -200,7 +243,9 @@ public class Agente extends Agent {
             } 
             case 3:{
                 String mensaje = comienzo + "dónde estás, Santa?" + fin;
+                mapaVisual.setMensaje(mensaje, 2, true);
                 mensaje = traducir(mensaje);
+                mapaVisual.setMensaje(mensaje, 2, false);
                 /*msgSanta.clearAllReceiver();
                 msgSanta.addReceiver(new AID("SantaClaus", AID.ISLOCALNAME));
                 msgSanta.setPerformative(ACLMessage.REQUEST);
@@ -210,11 +255,13 @@ public class Agente extends Agent {
                 msg.addReceiver(new AID("SantaClaus", AID.ISLOCALNAME));
                 msg.setContent(mensaje);
                 send(msg);
+                mapaVisual.setMensaje(mensaje, 1, true);
 
                 System.out.println("Agente: Esperando respuesta de Santa");
                 msg = blockingReceive();
                 if (msg.getPerformative() == ACLMessage.INFORM) {
                     String coordenadas = msg.getContent();
+                    mapaVisual.setMensaje(coordenadas, 1, false);
                     System.out.println("Agente: " + coordenadas);
                     coordenadas = coordenadas.split(",")[1];
                     String[] partes = coordenadas.split(" ");
@@ -236,15 +283,19 @@ public class Agente extends Agent {
             } 
             case 4:{
                 String mensaje = comienzo + "te he encontrado" + fin;
+                mapaVisual.setMensaje(mensaje, 1, true);
                 mensaje = traducir(mensaje);
+                mapaVisual.setMensaje(mensaje, 1 , false);
                 ACLMessage msg = new ACLMessage(ACLMessage.INFORM);
                 msg.addReceiver(new AID("SantaClaus", AID.ISLOCALNAME));
                 msg.setContent(mensaje);
                 send(msg);
+                mapaVisual.setMensaje(mensaje, 1 , true);
                 finalizadoFinal = true;
                 
                 msg = blockingReceive();
                 if (msg.getPerformative() == ACLMessage.INFORM) {
+                    mapaVisual.setMensaje(msg.getContent(), 1 , false);
                     System.out.println("Agente: " + msg.getContent());
                 }
                 else{

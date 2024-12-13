@@ -1,4 +1,5 @@
 import javax.swing.*;
+import javax.swing.text.*;
 import java.awt.*;
 
 public class MapaVisual extends JFrame {
@@ -8,6 +9,12 @@ public class MapaVisual extends JFrame {
     private int filas;
     private int columnas;
     private int lastX = -1, lastY = -1, metaX, metaY;
+    JTextPane chatPane;
+    StyledDocument chatDocument;
+    int agente_ant = -1;
+    ImageIcon rightIcon;
+    Image rightImg;
+    JLabel rightImage;
 
     public MapaVisual(Mapa mapa) {
         this.mapa_interno = mapa.getMapa();
@@ -16,11 +23,10 @@ public class MapaVisual extends JFrame {
         this.celdas = new JLabel[filas][columnas];
 
         setTitle("Práctica 2");
-        setLayout(new BorderLayout()); // Cambiamos el layout principal a BorderLayout
+        setLayout(new BorderLayout());
 
         getContentPane().setBackground(new Color(30, 30, 30));
 
-        // Panel para el grid
         JPanel gridPanel = new JPanel(new GridLayout(filas, columnas));
         for (int i = 0; i < filas; i++) {
             for (int j = 0; j < columnas; j++) {
@@ -30,64 +36,68 @@ public class MapaVisual extends JFrame {
                 celdas[i][j].setBorder(BorderFactory.createLineBorder(new Color(50, 50, 50)));
 
                 if (mapa_interno[i][j] == 0) {
-                    // Espacios libres
                     celdas[i][j].setIcon(new ImageIcon("Pr2-maps/hierba.png"));
                 } else {
-                    // Obstáculos
                     celdas[i][j].setIcon(new ImageIcon("Pr2-maps/muro.png"));
                 }
 
                 gridPanel.add(celdas[i][j]);
             }
         }
-        add(gridPanel, BorderLayout.CENTER); // Añadimos el grid al centro del BorderLayout
+        add(gridPanel, BorderLayout.CENTER);
 
-        // Panel para el apartado inferior
         JPanel bottomPanel = new JPanel(new BorderLayout());
         bottomPanel.setBackground(new Color(40, 40, 40));
         bottomPanel.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
 
-        // Chat en el centro
-        JTextArea chatArea = new JTextArea(5, 20);
-        chatArea.setEditable(false); // Hacemos que el área de chat no sea editable
-        chatArea.setBackground(new Color(60, 60, 60));
-        chatArea.setForeground(Color.WHITE);
-        chatArea.setFont(new Font("Arial", Font.PLAIN, 14));
-        JScrollPane scrollPane = new JScrollPane(chatArea); // Agregamos un scroll
+        chatPane = new JTextPane();
+        chatPane.setEditable(false);
+        chatPane.setBackground(new Color(60, 60, 60));
+        chatPane.setForeground(Color.WHITE);
+        chatPane.setFont(new Font("Arial", Font.PLAIN, 14));
+        chatDocument = chatPane.getStyledDocument();
+
+        chatPane.setPreferredSize(new Dimension(300, 100)); 
+        chatPane.setMinimumSize(new Dimension(300, 100));
+        chatPane.setMaximumSize(new Dimension(300, 100));
+
+
+        JScrollPane scrollPane = new JScrollPane(chatPane);
+        scrollPane.setPreferredSize(new Dimension(300, 100));
+        scrollPane.setMinimumSize(new Dimension(300, 100));
+        scrollPane.setMaximumSize(new Dimension(300, 100));
         bottomPanel.add(scrollPane, BorderLayout.CENTER);
 
-        // Imagen izquierda
         JLabel leftImage = new JLabel();
-        ImageIcon leftIcon = new ImageIcon("mapas-pr3/santa.jpg");
-        Image leftImg = leftIcon.getImage().getScaledInstance(chatArea.getPreferredSize().height, chatArea.getPreferredSize().height, Image.SCALE_SMOOTH);
+        ImageIcon leftIcon = new ImageIcon("mapas-pr3/agente.jpg");
+        Image leftImg = leftIcon.getImage().getScaledInstance(chatPane.getPreferredSize().height, chatPane.getPreferredSize().height, Image.SCALE_SMOOTH);
         leftImage.setIcon(new ImageIcon(leftImg));
         bottomPanel.add(leftImage, BorderLayout.WEST);
 
-        // Imagen derecha
-        JLabel rightImage = new JLabel();
-        ImageIcon rightIcon = new ImageIcon("mapas-pr3/santa.jpg");
-        Image rightImg = rightIcon.getImage().getScaledInstance(chatArea.getPreferredSize().height, chatArea.getPreferredSize().height, Image.SCALE_SMOOTH);
+        rightImage = new JLabel();
+        rightIcon = new ImageIcon("mapas-pr3/santa.jpg");
+        rightImg = rightIcon.getImage().getScaledInstance(chatPane.getPreferredSize().height, chatPane.getPreferredSize().height, Image.SCALE_SMOOTH);
         rightImage.setIcon(new ImageIcon(rightImg));
         bottomPanel.add(rightImage, BorderLayout.EAST);
 
-        add(bottomPanel, BorderLayout.SOUTH); // Añadimos el panel inferior al sur del BorderLayout
+        add(bottomPanel, BorderLayout.SOUTH);
 
-        setSize(800, 900); // Ajustamos el tamaño de la ventana
+        setSize(800, 900);
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         setVisible(true);
     }
 
     public void actualizarPosicionAgente(int x, int y) {
         if (lastX != -1 && lastY != -1 && !(lastX == metaX && lastY == metaY)) {
-            // Marca la celda por la que ha pasado el agente
+
             celdas[lastX][lastY].setIcon(new ImageIcon("mapas-pr3/tierra.png"));
         }
 
-        // Actualiza a la nueva posición del agente con una imagen específica
+        
         celdas[x][y].setIcon(new ImageIcon(""));
         celdas[x][y].setBackground(new Color(0, 0, 255));
 
-        // Actualiza la posición previa
+        
         lastX = x;
         lastY = y;
 
@@ -97,7 +107,7 @@ public class MapaVisual extends JFrame {
     public void setMeta(int x, int y) {
         this.metaX = x;
         this.metaY = y;
-        celdas[x][y].setIcon(null); // Meta con imagen específica
+        celdas[x][y].setIcon(null); 
         celdas[x][y].setBackground(new Color(255, 187, 51));
         repaint();
     }
@@ -111,4 +121,65 @@ public class MapaVisual extends JFrame {
         celdas[x][y].setBackground(new Color(255, 0, 0));
         repaint();
     }
+
+    private ImageIcon resizeIcon(String path) {
+        ImageIcon icon = new ImageIcon(path);
+        Image img = icon.getImage().getScaledInstance(100, 100, Image.SCALE_SMOOTH);
+        return new ImageIcon(img);
+    }
+
+    public void setMensaje(String mensaje, int agente, boolean comentarioAgente) {
+
+        if (agente != agente_ant) {
+            System.out.println("Cambia");
+            try {
+                chatDocument.remove(0, chatDocument.getLength());
+            } catch (BadLocationException e) {
+                e.printStackTrace();
+            }
+            agente_ant = agente;
+        }
+    
+        switch (agente) {
+            case 1:
+                rightIcon = resizeIcon("mapas-pr3/santa.jpg");
+                break;
+            case 2:
+                rightIcon = resizeIcon("mapas-pr3/elfo.png");
+                break;
+            case 3:
+                rightIcon = resizeIcon("mapas-pr3/rudolph.jpeg");
+                break;
+        }
+        rightImage.setIcon(rightIcon);
+    
+        SimpleAttributeSet attrs = new SimpleAttributeSet();
+        if (comentarioAgente) {
+            StyleConstants.setAlignment(attrs, StyleConstants.ALIGN_LEFT);
+            StyleConstants.setForeground(attrs, Color.GREEN);
+        } else {
+            StyleConstants.setAlignment(attrs, StyleConstants.ALIGN_RIGHT);
+            StyleConstants.setForeground(attrs, Color.CYAN);
+        }
+    
+        try {
+            int start = chatDocument.getLength(); 
+            chatDocument.insertString(start, mensaje + "\n", null);
+    
+            chatDocument.setParagraphAttributes(start, mensaje.length() + 1, attrs, false);
+        } catch (BadLocationException e) {
+            e.printStackTrace();
+        }
+    
+        chatPane.setCaretPosition(chatDocument.getLength());
+    
+        repaint();
+
+        try {
+            Thread.sleep(1000);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
+    }
+    
 }

@@ -45,7 +45,7 @@ public class Rudolph extends Agent {
         System.out.println("Rudolph: Mensaje recibido: " + contenido);
         switch (mensaje.getPerformative()) {
             case ACLMessage.REQUEST: // Validar el código secreto
-                if (mensaje.getConversationId().equals("1234")) {
+                if (mensaje.getConversationId().equals(CODIGO_SECRETO)) {
                     System.out.println("Rudolph: Código aceptado");
                     if (!todosRenosEncontrados) {
                         if (indiceActual < coordenadasRenos.size()) {
