@@ -283,9 +283,9 @@ public class Agente extends Agent {
             } 
             case 4:{
                 String mensaje = comienzo + "te he encontrado" + fin;
-                mapaVisual.setMensaje(mensaje, 1, true);
+                mapaVisual.setMensaje(mensaje, 2, true);
                 mensaje = traducir(mensaje);
-                mapaVisual.setMensaje(mensaje, 1 , false);
+                mapaVisual.setMensaje(mensaje, 2 , false);
                 ACLMessage msg = new ACLMessage(ACLMessage.INFORM);
                 msg.addReceiver(new AID("SantaClaus", AID.ISLOCALNAME));
                 msg.setContent(mensaje);

@@ -131,7 +131,6 @@ public class MapaVisual extends JFrame {
     public void setMensaje(String mensaje, int agente, boolean comentarioAgente) {
 
         if (agente != agente_ant) {
-            System.out.println("Cambia");
             try {
                 chatDocument.remove(0, chatDocument.getLength());
             } catch (BadLocationException e) {
