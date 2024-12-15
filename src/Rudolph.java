@@ -70,38 +70,6 @@ public class Rudolph extends Agent {
                 }
                 send(respuesta);
                 break;
-            /*case ACLMessage.REQUEST: // Validar el código secreto
-                if (contenido.equals(CODIGO_SECRETO)) {
-                    respuesta.setPerformative(ACLMessage.AGREE);
-                    respuesta.setContent("Código aceptado");
-                } else {
-                    respuesta.setPerformative(ACLMessage.REFUSE);
-                    respuesta.setContent("Código incorrecto");
-                }
-                send(respuesta);
-                break;
-
-            case ACLMessage.INFORM: // Enviar la posición del siguiente reno
-                if (!todosRenosEncontrados) {
-                    if (indiceActual < coordenadasRenos.size()) {
-                        respuesta.setPerformative(ACLMessage.INFORM);
-                        respuesta.setContent(coordenadasRenos.get(indiceActual));
-                        indiceActual++;
-                        if (indiceActual == coordenadasRenos.size()) {
-                            todosRenosEncontrados = true;
-                        }
-                    } else {
-                        respuesta.setPerformative(ACLMessage.INFORM);
-                        respuesta.setContent("No quedan renos que localizar");
-                    }
-                    send(respuesta);
-                }
-                break;
-
-            default:
-                System.out.println("Mensaje no reconocido");
-                break;
-                */
         }
     }
 

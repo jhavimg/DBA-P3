@@ -6,8 +6,6 @@ import jade.lang.acl.ACLMessage;
 public class Elfo extends Agent{
 
     private String mensaje_recibido, mensaje_enviar;
-    private int step;
-    private final int AGENTE = 0, SANTA = 1;
     private boolean finalizadoFinal = false;
 
     public Elfo(){
