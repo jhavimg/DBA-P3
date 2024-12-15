@@ -14,10 +14,8 @@ public class Agente extends Agent {
     private String comienzo = "Bro," , fin = ",en plan";
 
 
-    public Agente(Entorno env, int mX, int mY, int pX, int pY , MapaVisual mapavisual) {
+    public Agente(Entorno env, int pX, int pY , MapaVisual mapavisual) {
         this.env = env;
-        metaX = mX;
-        metaY = mY;
         posX = pX;
         posY = pY;
         esperandoRespuesta = vistoBuenoRudolph = renosCompletados = conSanta = aMoverse = finalizadoFinal = false;
@@ -131,42 +129,21 @@ public class Agente extends Agent {
             case 0: { 
                 String mensaje = comienzo + "me das el codigo" + fin;
                 mapaVisual.setMensaje(mensaje , 2, true);
-                /* try {
-                    Thread.sleep(2000);
-                } catch (InterruptedException e) {
-                    // TODO Auto-generated catch block
-                    e.printStackTrace();
-                } */
 
                 mensaje = traducir(mensaje);
                 mapaVisual.setMensaje(mensaje , 2, false);
-                /* try {
-                    Thread.sleep(2000);
-                } catch (InterruptedException e) {
-                    // TODO Auto-generated catch block
-                    e.printStackTrace();
-                } */
+
 
                 msgSanta = new ACLMessage(ACLMessage.REQUEST);
                 msgSanta.addReceiver(new AID("SantaClaus", AID.ISLOCALNAME));
                 msgSanta.setContent(mensaje); 
                 send(msgSanta);
                 mapaVisual.setMensaje(mensaje , 1, true);
-                /* try {
-                    Thread.sleep(2000);
-                } catch (InterruptedException e) {
-                    e.printStackTrace();
-                } */
                 
                 msgSanta = blockingReceive();
                 if (msgSanta.getPerformative() == ACLMessage.AGREE) {
                     codigoSecreto = msgSanta.getContent();
                     mapaVisual.setMensaje(codigoSecreto , 1, false);
-                    /* try {
-                        Thread.sleep(2000);
-                    } catch (InterruptedException e) {
-                        e.printStackTrace();
-                    } */
                     codigoSecreto = codigoSecreto.split(",")[1];
                     System.out.println("Agente: Me ha dado el codigo secreto");
                     System.out.println("Agente: El codigo secreto es: " + codigoSecreto);
@@ -188,11 +165,6 @@ public class Agente extends Agent {
                 msg.setConversationId(codigoSecreto);
                 send(msg);
                 mapaVisual.setMensaje(mensaje , 3, true);
-                /* try {
-                    Thread.sleep(1000);
-                } catch (InterruptedException e) {
-                    e.printStackTrace();
-                } */
 
                 msg = blockingReceive();
                 String coordenadas = msg.getContent();
@@ -200,11 +172,6 @@ public class Agente extends Agent {
                     //String coordenadas = msg.getContent();
                     System.out.println("Agente: " + coordenadas);
                     mapaVisual.setMensaje(coordenadas , 3, false);
-                    /* try {
-                        Thread.sleep(2000);
-                    } catch (InterruptedException e) {
-                        e.printStackTrace();
-                    } */
                     String[] partes = coordenadas.split(" ");
                     if (partes.length > 1) {
                         metaX = Integer.parseInt(partes[0]);
@@ -246,11 +213,6 @@ public class Agente extends Agent {
                 mapaVisual.setMensaje(mensaje, 2, true);
                 mensaje = traducir(mensaje);
                 mapaVisual.setMensaje(mensaje, 2, false);
-                /*msgSanta.clearAllReceiver();
-                msgSanta.addReceiver(new AID("SantaClaus", AID.ISLOCALNAME));
-                msgSanta.setPerformative(ACLMessage.REQUEST);
-                msgSanta.setContent(mensaje);
-                send(msgSanta);*/
                 ACLMessage msg = new ACLMessage(ACLMessage.REQUEST);
                 msg.addReceiver(new AID("SantaClaus", AID.ISLOCALNAME));
                 msg.setContent(mensaje);

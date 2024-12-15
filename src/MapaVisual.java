@@ -35,11 +35,11 @@ public class MapaVisual extends JFrame {
 
                 celdas[i][j].setBorder(BorderFactory.createLineBorder(new Color(50, 50, 50)));
 
-                if (mapa_interno[i][j] == 0) {
-                    celdas[i][j].setIcon(new ImageIcon("Pr2-maps/hierba.png"));
-                } else {
+                if (mapa_interno[i][j] != 0) {
+                    celdas[i][j].setBackground(new Color(0, 0, 0));;
+                } /* else {
                     celdas[i][j].setIcon(new ImageIcon("Pr2-maps/muro.png"));
-                }
+                } */
 
                 gridPanel.add(celdas[i][j]);
             }
@@ -89,7 +89,6 @@ public class MapaVisual extends JFrame {
 
     public void actualizarPosicionAgente(int x, int y) {
         if (lastX != -1 && lastY != -1 && !(lastX == metaX && lastY == metaY)) {
-
             celdas[lastX][lastY].setIcon(new ImageIcon("mapas-pr3/tierra.png"));
         }
 

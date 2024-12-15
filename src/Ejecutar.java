@@ -25,15 +25,28 @@ public class Ejecutar {
         Mapa mapa = new Mapa(menu(sc));
         Entorno env = new Entorno(mapa);
         
-        int metaX = 0, metaY = 0, posX = 2, posY = 2;
+        int santaX = 0, santaY = 0, posX = 0, posY = 0;
+        
+        do {
+            System.out.print("Introduce la posición inicial del agente(posX posY): ");
+            posX = sc.nextInt();
+            posY = sc.nextInt();
+        } while ((posX < 0 || posX >= mapa.getColumnas() || posY < 0 || posY >= mapa.getFilas()) && mapa.getMapa()[posX][posY] != 0 );
+
+        System.out.println("\n");
+
+        do {
+            System.out.print("Introduce la posición de la santa(posX posY): ");
+            santaX = sc.nextInt();
+            santaY = sc.nextInt();
+        } while ((santaX < 0 || santaX >= mapa.getColumnas() || santaY < 0 || santaY >= mapa.getFilas()) && mapa.getMapa()[santaX][santaY] != 0 );
         
         sc.close();
         
         MapaVisual mapaVisual = new MapaVisual(mapa);
-        mapaVisual.setMeta(metaX, metaY);
         
         try {
-            Santa santa = new Santa(2, 2);
+            Santa santa = new Santa(santaX, santaY);
             AgentController agent2 = cc.acceptNewAgent("SantaClaus", santa);
             agent2.start();
             
@@ -41,7 +54,7 @@ public class Ejecutar {
             AgentController agent3 = cc.acceptNewAgent("Elfo", elfo);
             agent3.start();
             
-            Agente agente = new Agente(env, metaX, metaY, posX, posY, mapaVisual);
+            Agente agente = new Agente(env, posX, posY, mapaVisual);
             AgentController agent1 = cc.acceptNewAgent("Agente", agente);
             agent1.start();
 
