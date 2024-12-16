@@ -158,7 +158,7 @@ public class Agente extends Agent {
                 break;
             }
             case 1: {
-                ACLMessage msg = new ACLMessage(ACLMessage.REQUEST);
+                ACLMessage msg = new ACLMessage(ACLMessage.PROPOSE);
                 msg.addReceiver(new AID("Rudolph", AID.ISLOCALNAME));
                 String mensaje = comienzo + "dame la posición de un reno" + fin;
                 msg.setContent(mensaje);
