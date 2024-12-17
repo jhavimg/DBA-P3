@@ -33,7 +33,7 @@ public class Elfo extends Agent{
             mensaje_recibido = msg.getContent();
             mensaje_enviar = traducirMensaje(mensaje_recibido, msg.getSender().getLocalName());
             System.out.println("Elfo: " + mensaje_enviar);
-            ACLMessage reply = msg.createReply(ACLMessage.INFORM);
+            ACLMessage reply = msg.createReply(ACLMessage.AGREE);
             reply.setContent(mensaje_enviar);
             send(reply);
         }

@@ -6,11 +6,11 @@ import jade.lang.acl.ACLMessage;
 public class Agente extends Agent {
 
     private int energia, posX, posY, metaX, metaY, step, santaX, santaY;
-    private boolean finalizado, esperandoRespuesta, vistoBuenoRudolph, renosCompletados, conSanta, aMoverse, finalizadoFinal;
+    private boolean aMoverse, finalizadoFinal;
     private Entorno env;
     private MapaVisual mapaVisual;
     private ACLMessage msgSanta;
-    private String codigoSecreto, respuesta;
+    private String codigoSecreto;
     private String comienzo = "Bro," , fin = ",en plan";
 
 
@@ -18,9 +18,8 @@ public class Agente extends Agent {
         this.env = env;
         posX = pX;
         posY = pY;
-        esperandoRespuesta = vistoBuenoRudolph = renosCompletados = conSanta = aMoverse = finalizadoFinal = false;
+        aMoverse = finalizadoFinal = false;
         energia = 0;
-        finalizado = false;
         santaX = santaY = -1;
         this.mapaVisual = mapavisual;
         step = 0;
@@ -113,7 +112,7 @@ public class Agente extends Agent {
         send(msg);
         
         msg = blockingReceive();
-        if (msg.getPerformative() == ACLMessage.INFORM) {
+        if (msg.getPerformative() == ACLMessage.AGREE) {
             final_msg = msg.getContent();
             System.out.print("Agente: " + final_msg + "\n");
         }else{
@@ -134,14 +133,14 @@ public class Agente extends Agent {
                 mapaVisual.setMensaje(mensaje , 2, false);
 
 
-                msgSanta = new ACLMessage(ACLMessage.REQUEST);
+                msgSanta = new ACLMessage(ACLMessage.PROPOSE);
                 msgSanta.addReceiver(new AID("SantaClaus", AID.ISLOCALNAME));
                 msgSanta.setContent(mensaje); 
                 send(msgSanta);
                 mapaVisual.setMensaje(mensaje , 1, true);
                 
                 msgSanta = blockingReceive();
-                if (msgSanta.getPerformative() == ACLMessage.AGREE) {
+                if (msgSanta.getPerformative() == ACLMessage.ACCEPT_PROPOSAL) {
                     codigoSecreto = msgSanta.getContent();
                     mapaVisual.setMensaje(codigoSecreto , 1, false);
                     codigoSecreto = codigoSecreto.split(",")[1];
@@ -158,7 +157,7 @@ public class Agente extends Agent {
                 break;
             }
             case 1: {
-                ACLMessage msg = new ACLMessage(ACLMessage.PROPOSE);
+                ACLMessage msg = new ACLMessage(ACLMessage.REQUEST);
                 msg.addReceiver(new AID("Rudolph", AID.ISLOCALNAME));
                 String mensaje = comienzo + "dame la posición de un reno" + fin;
                 msg.setContent(mensaje);
@@ -168,7 +167,7 @@ public class Agente extends Agent {
 
                 msg = blockingReceive();
                 String coordenadas = msg.getContent();
-                if (msg.getPerformative() == ACLMessage.ACCEPT_PROPOSAL) {
+                if (msg.getPerformative() == ACLMessage.AGREE) {
                     //String coordenadas = msg.getContent();
                     System.out.println("Agente: " + coordenadas);
                     mapaVisual.setMensaje(coordenadas , 3, false);
@@ -221,7 +220,7 @@ public class Agente extends Agent {
 
                 System.out.println("Agente: Esperando respuesta de Santa");
                 msg = blockingReceive();
-                if (msg.getPerformative() == ACLMessage.INFORM) {
+                if (msg.getPerformative() == ACLMessage.AGREE) {
                     String coordenadas = msg.getContent();
                     mapaVisual.setMensaje(coordenadas, 1, false);
                     System.out.println("Agente: " + coordenadas);
@@ -288,7 +287,6 @@ public class Agente extends Agent {
                 else comunicar();
 
                 if (posX == metaX && posY == metaY && aMoverse) {
-                    finalizado = true;
                     aMoverse = false;
                     if (posX == santaX && posY == santaY){
                         step++;

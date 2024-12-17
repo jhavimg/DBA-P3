@@ -7,13 +7,12 @@ import jade.lang.acl.ACLMessage;
 
 public class Santa extends Agent{
     private static final double PROBABILIDAD_CONFIABLE = 0.8;
-    private boolean renosCompletados ;
     private int posX, posY, step, contadorRenos;
     private String respuesta , mensaje;
     private ACLMessage msgAgente;
     private final String CODIGO_SECRETO = "1234";
     boolean finalizadoFinal = false;
-    private String comienzoR = "Rakas Joulupukki " , finR = " Kiitos" , comienzoE = "Hyvää joulua,"  , finE = ",Nähdään pian";
+    private String comienzoE = "Hyvää joulua,"  , finE = ",Nähdään pian";
     
     public Santa(int pX, int pY){
         posX = pX;
@@ -32,7 +31,7 @@ public class Santa extends Agent{
         send(msg);
         
         msg = blockingReceive();
-        if (msg.getPerformative() == ACLMessage.INFORM) {
+        if (msg.getPerformative() == ACLMessage.AGREE) {
             final_msg = msg.getContent();
             System.out.println("Santa Claus: " + final_msg);
         }else{
@@ -47,19 +46,19 @@ public class Santa extends Agent{
         switch (step) { 
             case 0: {
                 ACLMessage msg = blockingReceive();
-                if (msg.getPerformative() == ACLMessage.REQUEST) {
+                if (msg.getPerformative() == ACLMessage.PROPOSE) {
                     boolean esConfiable = new Random().nextDouble() < PROBABILIDAD_CONFIABLE;
                     ACLMessage reply;
                     if (esConfiable) {
                         mensaje = comienzoE + CODIGO_SECRETO + finE;
                         System.out.println("Santa Claus: Si confio en el agente");
                         
-                        reply = msg.createReply(ACLMessage.AGREE);
+                        reply = msg.createReply(ACLMessage.ACCEPT_PROPOSAL);
                         
                     } else {
                         mensaje = comienzoE + "Lo siento, no eres digno" + finE;
                         System.out.println("Santa Claus: No confio en el agente");
-                        reply = msg.createReply(ACLMessage.FAILURE);
+                        reply = msg.createReply(ACLMessage.REJECT_PROPOSAL);
                     }
                     
                     respuesta = traducir(mensaje);
@@ -79,7 +78,6 @@ public class Santa extends Agent{
                     System.out.println("Santa Claus: " + msg.getContent());
                     if (contadorRenos == 8){
                         System.out.println("Santa Claus: Todos los renos han sido encontrados");
-                        renosCompletados = true;
                         step++;
                     }
                 }
@@ -93,7 +91,7 @@ public class Santa extends Agent{
                 if (msg.getPerformative() == ACLMessage.REQUEST){
                     mensaje = comienzoE + posX + " " + posY + finE;
                     System.out.println("Santa Claus: Enviando mis coordenadas");
-                    ACLMessage reply = msg.createReply(ACLMessage.INFORM);
+                    ACLMessage reply = msg.createReply(ACLMessage.AGREE);
                     mensaje = traducir(mensaje);
                     reply.setContent(mensaje);
                     send(reply);

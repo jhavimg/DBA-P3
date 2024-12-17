@@ -43,34 +43,30 @@ public class Rudolph extends Agent {
         String contenido = mensaje.getContent();
         ACLMessage respuesta = mensaje.createReply();
         System.out.println("Rudolph: Mensaje recibido: " + contenido);
-        switch (mensaje.getPerformative()) {
-            case ACLMessage.PROPOSE: // Validar el código secreto
-                if (mensaje.getConversationId().equals(CODIGO_SECRETO)) {
-                    System.out.println("Rudolph: Código aceptado");
-                    if (!todosRenosEncontrados) {
-                        if (indiceActual < coordenadasRenos.size()) {
-                            respuesta.setPerformative(ACLMessage.ACCEPT_PROPOSAL);
-                            respuesta.setContent(coordenadasRenos.get(indiceActual));
-                            System.out.println("Rudolph: Enviando coordenadas del reno " + (indiceActual + 1) + ": " + coordenadasRenos.get(indiceActual));
-                            indiceActual++;
-                            if (indiceActual == coordenadasRenos.size()) {
-                                todosRenosEncontrados = true;
-                            }
-                        }
+        if (mensaje.getConversationId().equals(CODIGO_SECRETO)) {
+            System.out.println("Rudolph: Código aceptado");
+            if (!todosRenosEncontrados) {
+                if (indiceActual < coordenadasRenos.size()) {
+                    respuesta.setPerformative(ACLMessage.AGREE);
+                    respuesta.setContent(coordenadasRenos.get(indiceActual));
+                    System.out.println("Rudolph: Enviando coordenadas del reno " + (indiceActual + 1) + ": " + coordenadasRenos.get(indiceActual));
+                    indiceActual++;
+                    if (indiceActual == coordenadasRenos.size()) {
+                        todosRenosEncontrados = true;
                     }
-                    else {
-                        respuesta.setPerformative(ACLMessage.INFORM);
-                        respuesta.setContent("No quedan renos que localizar");
-                        System.out.println("Rudolph: No quedan renos que localizar");
-                    }
-                } else {
-                    System.out.println("Rudolph: Código incorrecto");
-                    respuesta.setPerformative(ACLMessage.REFUSE);
-                    respuesta.setContent("Código incorrecto");
                 }
-                send(respuesta);
-                break;
+            }
+            else {
+                respuesta.setPerformative(ACLMessage.INFORM);
+                respuesta.setContent("No quedan renos que localizar");
+                System.out.println("Rudolph: No quedan renos que localizar");
+            }
+        } else {
+            System.out.println("Rudolph: Código incorrecto");
+            respuesta.setPerformative(ACLMessage.REFUSE);
+            respuesta.setContent("Código incorrecto");
         }
+        send(respuesta);
     }
 
     @Override
