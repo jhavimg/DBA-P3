@@ -22,7 +22,7 @@ public class MapaVisual extends JFrame {
         this.columnas = mapa.getColumnas();
         this.celdas = new JLabel[filas][columnas];
 
-        setTitle("Práctica 2");
+        setTitle("Práctica 3");
         setLayout(new BorderLayout());
 
         getContentPane().setBackground(new Color(30, 30, 30));
