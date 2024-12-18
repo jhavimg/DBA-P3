@@ -6,23 +6,20 @@ import jade.lang.acl.ACLMessage;
 public class Elfo extends Agent{
 
     private String mensaje_recibido, mensaje_enviar;
-    private int step;
-    private final int AGENTE = 0, SANTA = 1;
-    private boolean finalizadoFinal;
+    private boolean finalizadoFinal = false;
 
     public Elfo(){
         mensaje_recibido = "";
         mensaje_enviar = "";
-        finalizadoFinal = false;
     }
 
-    protected String traducirMensaje(String mensaje, boolean agente){
+    protected String traducirMensaje(String mensaje, String agente){
         String aux = "", final_msg = "";
-        if(agente){
-             aux = mensaje.replace("Bro", "Rakas Joulupukki");
-             final_msg = aux.replace("en plan", "Kiitos");
+        if(agente.equals("Agente")){
+            aux = mensaje.replace("Bro", "Rakas Joulupukki");
+            final_msg = aux.replace("en plan", "Kiitos");
         }
-        else{
+        else if(agente.equals("SantaClaus")){
              aux = mensaje.replace("Hyvää joulua", "Bro");
              final_msg = aux.replace("Nähdään pian", "en plan"); 
         }
@@ -30,61 +27,22 @@ public class Elfo extends Agent{
     }
 
     protected void comunicar(){
-        switch (step) { 
-            case AGENTE: {
-                ACLMessage msg = blockingReceive();
+        ACLMessage msg = blockingReceive();
 
-                if (msg.getPerformative() == ACLMessage.REQUEST) {
-                    mensaje_recibido = msg.getContent();
-                    mensaje_enviar = traducirMensaje(mensaje_recibido, true);
-                    
-                    ACLMessage reply = msg.createReply(ACLMessage.INFORM);
-                    msg.setContent(mensaje_enviar);
-                    send(reply);
-                    step++;
-                }
-                else {
-                    System.out.println("Elfo: Error in the coversation protocol - step " + 1);
-                    doDelete();
-                }
-                
-            }
-            
-            case SANTA: {
-
-                ACLMessage msg = blockingReceive();
-
-                if (msg.getPerformative() == ACLMessage.REQUEST) {
-                    mensaje_recibido = msg.getContent();
-                    mensaje_enviar = traducirMensaje(mensaje_recibido, false);
-                    
-                    ACLMessage reply = msg.createReply(ACLMessage.INFORM);
-                    msg.setContent(mensaje_enviar);
-                    send(reply);
-
-                    if(mensaje_recibido == "Hyvää joulua, HoHoHo! , Nähdään pian"){
-                        finalizadoFinal = true;
-                        doDelete();
-                    }
-                    
-                    step--;
-                }
-                else {
-                    System.out.println("Elfo: Error in the coversation protocol - step " + 1);
-                    doDelete();
-                }
-
-            }
-
-            default: {
-
-                System.out.println("Elfo: Error in the coversation protocol - step " + 2);
-                doDelete(); 
-
-            }
-        } 
+        if (msg.getPerformative() == ACLMessage.REQUEST) {
+            mensaje_recibido = msg.getContent();
+            mensaje_enviar = traducirMensaje(mensaje_recibido, msg.getSender().getLocalName());
+            System.out.println("Elfo: " + mensaje_enviar);
+            ACLMessage reply = msg.createReply(ACLMessage.AGREE);
+            reply.setContent(mensaje_enviar);
+            send(reply);
+        }
+        else {
+            System.out.println("Error in the coversation protocol - step " + 1);
+            doDelete();
+        }
     } 
-
+    
     @Override
     protected void setup() {
 
@@ -101,6 +59,9 @@ public class Elfo extends Agent{
             }
         });
     }
-    
-    
+
+    @Override
+    public void takeDown() {
+        System.out.println("Cerrando elfo...");
+    }
 }

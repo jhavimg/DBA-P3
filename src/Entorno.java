@@ -1,6 +1,3 @@
-package dbap3;
-
-
 public class Entorno {
 
     private final int[][] map_interno;

@@ -6,275 +6,23 @@ import jade.lang.acl.ACLMessage;
 public class Agente extends Agent {
 
     private int energia, posX, posY, metaX, metaY, step, santaX, santaY;
-    private boolean finalizado, esperandoRespuesta, vistoBuenoRudolph, renosCompletados, conSanta, aMoverse, finalizadoFinal;
+    private boolean aMoverse, finalizadoFinal;
     private Entorno env;
     private MapaVisual mapaVisual;
     private ACLMessage msgSanta;
-    private String codigoSecreto, respuesta;
-    private final int ELFO = 0, SANTA = 1, RUDOLPH = 2;
+    private String codigoSecreto;
+    private String comienzo = "Bro," , fin = ",en plan";
 
-    public Agente(Entorno env, int mX, int mY, int pX, int pY) {
+
+    public Agente(Entorno env, int pX, int pY , MapaVisual mapavisual) {
         this.env = env;
-        metaX = mX;
-        metaY = mY;
         posX = pX;
         posY = pY;
-        msgSanta = new ACLMessage(ACLMessage.INFORM);
-        msgSanta.addReceiver(new AID ("SantaClaus", AID.ISLOCALNAME));
-        esperandoRespuesta = vistoBuenoRudolph = renosCompletados = conSanta = aMoverse = finalizadoFinal = false;
+        aMoverse = finalizadoFinal = false;
         energia = 0;
-        finalizado = false;
         santaX = santaY = -1;
-    }
-
-    
-    protected void comunicar(){
-        switch (step) { 
-            case ELFO: { 
-                //Si ya está con Santa Claus, se comunica con él para informarle
-                if (conSanta){
-                    //Envía mensaje al traductor
-                    if (!esperandoRespuesta){
-                        ACLMessage msg = new ACLMessage(ACLMessage.REQUEST);
-                        msg.addReceiver(new AID("Elfo", AID.ISLOCALNAME));
-                        msg.setContent("Bro, estoy contigo, en plan"); 
-                        send(msg);
-                        esperandoRespuesta = true;
-                    }
-                    //Recibe mensaje del traductor
-                    else{
-                        ACLMessage msg = blockingReceive();
-                        if (msg.getPerformative() == ACLMessage.INFORM) {
-                            respuesta = msg.getContent();
-                            step = SANTA;
-                            esperandoRespuesta = false;
-                        }
-                        else {
-                            System.out.println("Agente: Error in the conversation protocol - step " + 1);
-                            doDelete();
-                        }
-                    }
-                }
-                else if (finalizado){
-                    //Envía mensaje al traductor
-                    if (!esperandoRespuesta){
-                        ACLMessage msg = new ACLMessage(ACLMessage.REQUEST);
-                        msg.addReceiver(new AID("Elfo", AID.ISLOCALNAME));
-                        msg.setContent("Bro, acabo de encontrar a un reno, en plan"); 
-                        send(msg);
-                        esperandoRespuesta = true;
-                    }
-                    //Recibe mensaje del traductor
-                    else{
-                        ACLMessage msg = blockingReceive();
-                        if (msg.getPerformative() == ACLMessage.INFORM) {
-                            respuesta = msg.getContent();
-                            step = SANTA;
-                            esperandoRespuesta = false;
-                        }
-                        else {
-                            System.out.println("Agente: Error in the conversation protocol - step " + 1);
-                            doDelete();
-                        }
-                    }
-                }
-                else if (!renosCompletados){
-                    //Envía mensaje al traductor
-                    if (!esperandoRespuesta){
-                        ACLMessage msg = new ACLMessage(ACLMessage.REQUEST);
-                        msg.addReceiver(new AID("Elfo", AID.ISLOCALNAME));
-                        msg.setContent("Bro, me das el código secreto, en plan"); 
-                        send(msg);
-                        esperandoRespuesta = true;
-                    }
-                    //Recibe mensaje del traductor
-                    else{
-                        ACLMessage msg = blockingReceive();
-                        if (msg.getPerformative() == ACLMessage.INFORM) {
-                            respuesta = msg.getContent();
-                            step = SANTA;
-                            esperandoRespuesta = false;
-                        }
-                        else {
-                            System.out.println("Agente: Error in the conversation protocol - step " + 1);
-                            doDelete();
-                        }
-                    }
-                }
-                //Si ya ha completado la búsqueda de renos, se inicia la comunicación con Santa Claus
-                else{
-                     //Envía mensaje al traductor
-                     if (!esperandoRespuesta){
-                        ACLMessage msg = new ACLMessage(ACLMessage.REQUEST);
-                        msg.addReceiver(new AID("Elfo", AID.ISLOCALNAME));
-                        msg.setContent("Bro, ya he encontrado a todos los renos, me pasas tu ubicación? en plan"); 
-                        send(msg);
-                        esperandoRespuesta = true;
-                    }
-                    //Recibe mensaje del traductor
-                    else{
-                        ACLMessage msg = blockingReceive();
-                        if (msg.getPerformative() == ACLMessage.INFORM) {
-                            respuesta = msg.getContent();
-                            step = SANTA;
-                            esperandoRespuesta = false;
-                        }
-                        else {
-                            System.out.println("Agente: Error in the conversation protocol - step " + 1);
-                            doDelete();
-                        }
-                    }
-                }
-            }
-            case SANTA: {
-                //Si ya ha llegado a la meta, se comunica con Santa Claus para informarle
-                if (conSanta){
-                    //Envía mensaje a Santa Claus
-                    if (!esperandoRespuesta) {
-                        msgSanta.setContent(respuesta);
-                        send(msgSanta);
-                        esperandoRespuesta = true;
-                    }
-                    //Recibe mensaje de Santa Claus
-                    else{
-                        msgSanta = blockingReceive();
-                        if (msgSanta.getPerformative() == ACLMessage.INFORM) {
-                            respuesta = msgSanta.getContent();
-                            System.out.println(respuesta);
-                            esperandoRespuesta = false;
-                            finalizadoFinal = true;
-                        }
-                        else {
-                            System.out.println("Agente: Error in the conversation protocol - step " + 2);
-                            doDelete();
-                        }
-                    }
-                }
-                // Si ha encontrado un reno se lo dice a Santa Claus
-                else if (finalizado){
-                    //Envía mensaje a Santa Claus
-                    if (!esperandoRespuesta) {
-                        msgSanta.setContent(respuesta);
-                        send(msgSanta);
-                        step = RUDOLPH;
-                        finalizado = false;
-                    }
-                }
-                else if (!renosCompletados){
-                    //Envía mensaje a Santa Claus
-                    if (!esperandoRespuesta) {
-                        msgSanta.setContent(respuesta);
-                        send(msgSanta);
-                        esperandoRespuesta = true;
-                    }
-                    //Recibe mensaje de Santa Claus
-                    else{
-                        msgSanta = blockingReceive();
-                        if (msgSanta.getPerformative() == ACLMessage.INFORM) {
-                            codigoSecreto = msgSanta.getContent();
-                            esperandoRespuesta = false;
-                            step = RUDOLPH;
-                        }
-                        else if (msgSanta.getPerformative() == ACLMessage.FAILURE){
-                            System.out.println("Santa Claus no ha querido confiar en ti");
-                            doDelete();
-                        }
-                        else {
-                            System.out.println("Agente: Error in the conversation protocol - step " + 2);
-                            doDelete();
-                        }
-                    }
-                }
-                else {
-                    //Envía mensaje a Santa Claus
-                    if (!esperandoRespuesta) {
-                        msgSanta.setContent(respuesta);
-                        send(msgSanta);
-                        esperandoRespuesta = true;
-                    }
-                    //Recibe mensaje de Santa Claus
-                    else{
-                        msgSanta = blockingReceive();
-                        if (msgSanta.getPerformative() == ACLMessage.INFORM) {
-                            respuesta = msgSanta.getContent();
-                            String[] coordenadas = respuesta.split(" ");
-                            metaX = santaX = Integer.parseInt(coordenadas[0]);
-                            metaY = santaY = Integer.parseInt(coordenadas[1]);
-                            esperandoRespuesta = false;
-                            aMoverse = true;
-                            step = ELFO;
-                        }
-                        else {
-                            System.out.println("Agente: Error in the conversation protocol - step " + 2);
-                            doDelete();
-                        }
-                    }
-                }
-            } 
-            case RUDOLPH: {
-                //Si es la primera vez que le hablamos, Rudolph tiene que darnos el visto bueno
-                if (!vistoBuenoRudolph){
-                    //Envía mensaje a Rudolph
-                    if (!esperandoRespuesta) {
-                        ACLMessage msg = new ACLMessage(ACLMessage.REQUEST);
-                        msg.addReceiver(new AID("Rudolph", AID.ISLOCALNAME));
-                        msg.setContent(codigoSecreto);
-                        send(msg);
-                        esperandoRespuesta = true;
-                    }
-                    //Recibe mensaje de Rudolph
-                    else{
-                        ACLMessage msg = blockingReceive();
-                        if (msg.getPerformative() == ACLMessage.AGREE) {
-                            esperandoRespuesta = false;
-                            vistoBuenoRudolph = true;
-                        }
-                        else {
-                            System.out.println("Agente: Error in the conversation protocol - step " + 3);
-                            doDelete();
-                        }
-                    }
-                }
-                else {
-                    //Envía mensaje a Rudolph
-                    if (!esperandoRespuesta) {
-                        ACLMessage msg = new ACLMessage(ACLMessage.INFORM);
-                        msg.addReceiver(new AID("Rudolph", AID.ISLOCALNAME));
-                        msg.setContent("Bro, deseo saber la posición de un reno, en plan");
-                        send(msg);
-                        esperandoRespuesta = true;
-                    }
-                    //Recibe mensaje de Rudolph
-                    else{
-                        ACLMessage msg = blockingReceive();
-                        if (msg.getPerformative() == ACLMessage.INFORM) {
-                            respuesta = msg.getContent();
-                            if (respuesta == "No quedan renos que localizar"){
-                                System.out.println("No quedan renos que localizar");
-                                step = ELFO;
-                                renosCompletados = true;
-                            }
-                            else{
-                                String[] coordenadas = respuesta.split(" ");
-                                metaX = Integer.parseInt(coordenadas[0]);
-                                metaY = Integer.parseInt(coordenadas[1]);
-                                aMoverse = true;
-                                step = ELFO;
-                            }
-                            esperandoRespuesta = false;
-                        }
-                        else {
-                            System.out.println("Agente: Error in the conversation protocol - step " + 4);
-                            doDelete();
-                        }
-                    }
-                }
-            }
-            default:{
-                System.out.println("Agente: Error in the conversation protocol - step " + 2);
-                doDelete(); 
-            } 
-        }  
+        this.mapaVisual = mapavisual;
+        step = 0;
     }
 
     protected void mover() {
@@ -355,6 +103,171 @@ public class Agente extends Agent {
         }
     }
 
+    private String traducir(String mensaje){
+        String final_msg = "";
+        
+        ACLMessage msg = new ACLMessage(ACLMessage.REQUEST);
+        msg.addReceiver(new AID("Elfo", AID.ISLOCALNAME));
+        msg.setContent(mensaje); 
+        send(msg);
+        
+        msg = blockingReceive();
+        if (msg.getPerformative() == ACLMessage.AGREE) {
+            final_msg = msg.getContent();
+            System.out.print("Agente: " + final_msg + "\n");
+        }else{
+            System.out.print("Agente: El protocolo entre el Elfo y yo no es correcto\n ");
+            doDelete();
+        }
+        
+        return final_msg;
+    }
+
+    protected void comunicar(){
+        switch (step) { 
+            case 0: { 
+                String mensaje = comienzo + "me das el codigo" + fin;
+                mapaVisual.setMensaje(mensaje , 2, true);
+
+                mensaje = traducir(mensaje);
+                mapaVisual.setMensaje(mensaje , 2, false);
+
+
+                msgSanta = new ACLMessage(ACLMessage.PROPOSE);
+                msgSanta.addReceiver(new AID("SantaClaus", AID.ISLOCALNAME));
+                msgSanta.setContent(mensaje); 
+                send(msgSanta);
+                mapaVisual.setMensaje(mensaje , 1, true);
+                
+                msgSanta = blockingReceive();
+                if (msgSanta.getPerformative() == ACLMessage.ACCEPT_PROPOSAL) {
+                    codigoSecreto = msgSanta.getContent();
+                    mapaVisual.setMensaje(codigoSecreto , 1, false);
+                    codigoSecreto = codigoSecreto.split(",")[1];
+                    System.out.println("Agente: Me ha dado el codigo secreto");
+                    System.out.println("Agente: El codigo secreto es: " + codigoSecreto);
+                    mapaVisual.setMensaje("Me ha dado el codigo secreto" , 1 , true );
+                    step++;
+                }else{
+                    System.out.println("Agente: No ha confiado en mi");
+                    mensaje = msgSanta.getContent();
+                    mapaVisual.setMensaje(codigoSecreto , 1, false);
+                    finalizadoFinal = true;
+                }
+                break;
+            }
+            case 1: {
+                ACLMessage msg = new ACLMessage(ACLMessage.REQUEST);
+                msg.addReceiver(new AID("Rudolph", AID.ISLOCALNAME));
+                String mensaje = comienzo + "dame la posición de un reno" + fin;
+                msg.setContent(mensaje);
+                msg.setConversationId(codigoSecreto);
+                send(msg);
+                mapaVisual.setMensaje(mensaje , 3, true);
+
+                msg = blockingReceive();
+                String coordenadas = msg.getContent();
+                if (msg.getPerformative() == ACLMessage.AGREE) {
+                    //String coordenadas = msg.getContent();
+                    System.out.println("Agente: " + coordenadas);
+                    mapaVisual.setMensaje(coordenadas , 3, false);
+                    String[] partes = coordenadas.split(" ");
+                    if (partes.length > 1) {
+                        metaX = Integer.parseInt(partes[0]);
+                        metaY = Integer.parseInt(partes[1]);
+                        mapaVisual.setReno(metaX, metaY);
+                        aMoverse = true;
+                    } else {
+                        System.out.println("No se encontró un mensaje entre comillas.");
+                    }
+                }
+                else if (msg.getPerformative() == ACLMessage.INFORM) {
+                    System.out.println("Agente: No quedan renos");
+                    mapaVisual.setMensaje(coordenadas, 3, false);
+                    step = 3;
+                }
+                else if (msg.getPerformative() == ACLMessage.REFUSE) {
+                    System.out.println("Agente: Codigo incorrecto");
+                    finalizadoFinal = true;
+                }
+                else{
+                    System.out.println("Agente: No se ha podido localizar al reno");
+                    finalizadoFinal = true;
+                }
+                break;
+            }
+            case 2:{
+                String mensaje = comienzo + "he encontrado un reno" + fin;
+                mensaje = traducir(mensaje);
+                msgSanta.clearAllReceiver();
+                msgSanta.addReceiver(new AID("SantaClaus", AID.ISLOCALNAME));
+                msgSanta.setPerformative(ACLMessage.INFORM);
+                msgSanta.setContent(mensaje);
+                send(msgSanta);
+                step--;
+                break;
+            } 
+            case 3:{
+                String mensaje = comienzo + "dónde estás, Santa?" + fin;
+                mapaVisual.setMensaje(mensaje, 2, true);
+                mensaje = traducir(mensaje);
+                mapaVisual.setMensaje(mensaje, 2, false);
+                ACLMessage msg = new ACLMessage(ACLMessage.REQUEST);
+                msg.addReceiver(new AID("SantaClaus", AID.ISLOCALNAME));
+                msg.setContent(mensaje);
+                send(msg);
+                mapaVisual.setMensaje(mensaje, 1, true);
+
+                System.out.println("Agente: Esperando respuesta de Santa");
+                msg = blockingReceive();
+                if (msg.getPerformative() == ACLMessage.AGREE) {
+                    String coordenadas = msg.getContent();
+                    mapaVisual.setMensaje(coordenadas, 1, false);
+                    System.out.println("Agente: " + coordenadas);
+                    coordenadas = coordenadas.split(",")[1];
+                    String[] partes = coordenadas.split(" ");
+                    if (partes.length > 1) {
+                        santaX = metaX = Integer.parseInt(partes[0]);
+                        santaY = metaY = Integer.parseInt(partes[1]);
+                        mapaVisual.setSanta(santaX, santaY);
+                        aMoverse = true;
+                    } else {
+                        System.out.println("No se encontró un mensaje entre comillas.");
+                        finalizadoFinal = true;
+                    }
+                }
+                else{
+                    System.out.println("Agente: No se ha podido localizar a Santa");
+                    finalizadoFinal = true;
+                }
+                break;
+            } 
+            case 4:{
+                String mensaje = comienzo + "te he encontrado" + fin;
+                mapaVisual.setMensaje(mensaje, 2, true);
+                mensaje = traducir(mensaje);
+                mapaVisual.setMensaje(mensaje, 2 , false);
+                ACLMessage msg = new ACLMessage(ACLMessage.INFORM);
+                msg.addReceiver(new AID("SantaClaus", AID.ISLOCALNAME));
+                msg.setContent(mensaje);
+                send(msg);
+                mapaVisual.setMensaje(mensaje, 1 , true);
+                finalizadoFinal = true;
+                
+                msg = blockingReceive();
+                if (msg.getPerformative() == ACLMessage.INFORM) {
+                    mapaVisual.setMensaje(msg.getContent(), 1 , false);
+                    System.out.println("Agente: " + msg.getContent());
+                }
+                else{
+                    System.out.println("Agente: No se ha podido localizar a Santa");
+                }
+                break;
+            }
+        }
+    }
+
+    
     @Override
     protected void setup() {
 
@@ -362,36 +275,26 @@ public class Agente extends Agent {
         addBehaviour(new SimpleBehaviour() {
             @Override
             public void action() {
-                
-                // mover();
-                // mapaVisual.actualizarPosicionAgente(posX, posY);
-                // energia++;
-                // System.out.println("Nueva posicion: " + posX + " " + posY);
-
-                // if (posX == metaX && posY == metaY) {
-                //     finalizado = true;
-                //     if (posX == santaX && posY == santaY){
-                //         conSanta = true;
-                //     }
-                // }
                 if(energia == 0){
                     mapaVisual.actualizarPosicionAgente(posX, posY);
                 }
 
-                if (aMoverse) mover();
+                if (aMoverse) {
+                    mover();
+                    mapaVisual.actualizarPosicionAgente(posX, posY);
+                    energia++;
+                }
                 else comunicar();
 
                 if (posX == metaX && posY == metaY && aMoverse) {
-                    finalizado = true;
                     aMoverse = false;
                     if (posX == santaX && posY == santaY){
-                        conSanta = true;
+                        step++;
                     }
+                    else step = 2;
                 }
-                mapaVisual.actualizarPosicionAgente(posX, posY);
-                energia++;
                 try {
-                    Thread.sleep(500); // Pausa de 500ms para visualizar el movimiento
+                    Thread.sleep(5); // Pausa de 500ms para visualizar el movimiento
                 } catch (InterruptedException e) {
                     e.printStackTrace();
                 }
@@ -421,7 +324,7 @@ public class Agente extends Agent {
 
     @Override
     public void takeDown() {
-        System.out.println("Terminating agent...");
+        System.out.println("Cerrando agente...");
     }
 
     public void setMapaVisual(MapaVisual mapaVisual) {
